@@ -3,7 +3,7 @@
   <div id="app">
     <NavBar />   <!-- Fijo arriba, pero dentro del 80% -->
     <main class="flex-grow-1 overflow-auto">
-      <GestionClientes />
+      <router-view />
     </main>
     <FooTer class="mt-auto" />  <!-- Fijo abajo, pero dentro del 80% -->
   </div>
