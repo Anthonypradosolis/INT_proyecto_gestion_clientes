@@ -6,25 +6,26 @@ import NotiCias from '../components/NotiCias.vue'
 
 const routes = [
     {
-    path: '/' ,
-    name: 'Inicio',
-    component: PaginaInicio
-},
-{
-    path: '/clientes',
-    name: 'GestionClientes',
-    component: GestionClientes
-},
-{
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: NotFound
-},
-{
-    path: '/noticas',
-    name: 'NotiCias',
-    compoment: NotiCias,
-},
+        path: '/',
+        name: 'Inicio',
+        component: PaginaInicio
+    },
+    {
+        path: '/clientes',
+        name: 'GestionClientes',
+        component: GestionClientes
+    },
+    {
+        path: '/noticias',
+        name: 'NotiCias',
+        component: NotiCias,
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFound
+    },
+
 ]
 const router = createRouter({
     history: createWebHistory(),
