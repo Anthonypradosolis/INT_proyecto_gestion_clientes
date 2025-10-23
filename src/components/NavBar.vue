@@ -3,7 +3,9 @@
 
     <div class="container-fluid">
       <!-- Marca o logo -->
-      <a class="navbar-brand" href="#">EmpresaTeis</a>
+      <a class="navbar-brand d-flex align-items-center" href="#" >
+        <img src="/dibujo.svg" alt="Logo EmpresaTeis" class="brand-logo me-2" />
+      </a>
 
       <!-- Botón de hamburguesa en pantallas pequeñas -->
       <button
@@ -55,6 +57,12 @@
 .navbar-dark .nav-link:hover,
 .navbar-dark .nav-link:focus {
   color: #fff; /* blanco intenso al pasar el ratón */
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 </style>

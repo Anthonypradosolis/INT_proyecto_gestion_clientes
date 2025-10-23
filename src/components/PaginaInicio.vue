@@ -5,12 +5,16 @@
             Tu navegador no soporta el video.
         </video>
         <div class="content">
-            <h1 class="bienvenida-titulo">Bienvenido a la página de Inicio</h1>
+            <h1 class="bienvenida-titulo">Bienvenido a CarTeis</h1>
             <!-- Aquí puedes añadir más contenido, botones, etc. -->
         </div>
     </div>
 </template>
+<script setup>
 
+
+
+</script>
 <style scoped>
 .video-bg {
     position: fixed;
@@ -80,3 +84,11 @@ body, html {
     overflow: hidden;
 }
 </style>
+
+<!-- Apuntes de noticias.json
+    id => json lo añade
+    titulo => 128 caracteres
+    contenido => 256 caracteres
+    fecha => formato fecha, la toma del sistema
+    bonus => muestra solo 1 noticia en la pagina al hacer click sobre ello
+-->
