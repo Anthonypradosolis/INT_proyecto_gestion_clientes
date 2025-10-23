@@ -544,7 +544,7 @@ const eliminarCliente = async (movil) => {
     timer: 1500
   });
 };
-
+// añadir que cuando editamos editamos a un usuario no se pueda editar el dni
 // Función Editar Cliente (carga datos en el formulario)
 const editarCliente = (movil) => {
   const cliente = clientes.value.find((c) => c.movil === movil);
@@ -557,7 +557,7 @@ const editarCliente = (movil) => {
     });
     return;
   }
-
+ 
   // Copiar datos al formulario
   nuevoCliente.value = { ...cliente }; // 🔁 Aquí cargas el formulario con los datos
   editando.value = true;
