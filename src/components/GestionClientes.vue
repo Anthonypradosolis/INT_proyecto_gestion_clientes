@@ -21,13 +21,11 @@
                   required
                   oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
                   oninput="this.setCustomValidity('')"
-                  :disabled="!avisoLegal"
                 />
                 <button
                   type="button"
                   class="btn btn btn-primary ms-3 border-0 shadow-none rounded-0"
                   @click="buscarClientePorDNI(nuevoCliente.dni)"
-                  :disabled="!avisoLegal"
                 >
                   <i class="bi bi-search"></i>
                 </button>
@@ -49,7 +47,6 @@
             id="fechaAlta"
             v-model="nuevoCliente.fechaAlta"
             class="form-control w-auto"
-            :disabled="!avisoLegal"
           />
         </div>
       </div>
@@ -68,7 +65,6 @@
             class="form-control flex-grow-1"
             @blur="capitalizarTexto('nombre')"
             required
-            :disabled="!avisoLegal"
           />
         </div>
 
@@ -84,7 +80,6 @@
             class="form-control flex-grow-1"
             @blur="capitalizarTexto('apellidos')"
             required
-            :disabled="!avisoLegal"
           />
         </div>
       </div>
@@ -104,7 +99,6 @@
             @blur="validarEmail('email')"
             :class="{ 'is-invalid': !emailValido }"
             required
-            :disabled="!avisoLegal"
           />
         </div>
 
@@ -120,7 +114,6 @@
             @blur="validarMovil('movil')"
             class="form-control flex-grow-1 text-center"
             :class="{ 'is-invalid': !movilValido }"
-            :disabled="!avisoLegal"
           />
         </div>
       </div>
@@ -138,7 +131,6 @@
             v-model="nuevoCliente.direccion"
             @blur="capitalizarTexto('direccion')"
             class="form-control flex-grow-1"
-            :disabled="!avisoLegal"
           />
         </div>
 
@@ -152,7 +144,6 @@
             v-model="nuevoCliente.provincia"
             class="form-select flex-grow-1 w-25"
             @change="filtrarMunicipios"
-            :disabled="!avisoLegal"
           >
             <option disabled value="">Seleccione provincia</option>
             <option v-for="prov in provincias" :key="prov.id" :value="prov.nm">
@@ -170,7 +161,6 @@
             id="municipio"
             v-model="nuevoCliente.municipio"
             class="form-select flex-grow-1 w-auto"
-            :disabled="!avisoLegal"
           >
             <option disabled value="">Seleccione municipio</option>
             <option
@@ -205,7 +195,6 @@
           v-model="mostrarHistorico"
           class="form-check-input"
           @change="cargarClientes"
-          :disabled="!avisoLegal"
         />
         <label for="historico" class="form-check-label ms-3 me-5 mb-0"
           >Histórico</label
@@ -250,7 +239,6 @@
                 <button
                   @click="eliminarCliente(cliente.movil)"
                   class="btn btn-danger btn-sm border-0 ms-4 me-2 shadow-none rounded-0"
-                  :disabled="!avisoLegal"
                 >
                   <i class="bi bi-trash"></i>
                 </button>
@@ -258,7 +246,6 @@
                   @click="editarCliente(cliente.movil)"
                   class="btn btn-warning btn-sm border-0 shadow-none rounded-0"
                   title="Editar Cliente"
-                  :disabled="!avisoLegal"
                 >
                   <i class="bi bi-pencil"></i>
                 </button>
@@ -267,7 +254,6 @@
                   @click="activarCliente(cliente.movil)"
                   class="btn btn-secondary btn-sm ms-2 border-0 shadow-none rounded-0"
                   title="Activar Cliente"
-                  :disabled="!avisoLegal"
                 >
                   <i class="bi bi-person-check"></i>
                 </button>
