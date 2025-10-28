@@ -11,24 +11,26 @@
         <div class="col-md-4 d-flex align-items-center">
           <label for="dni" class="form-label mb-0 w-25">DNI: </label>
           <div class="flex-grow-1 d-flex align-items-center">
-            <input
-              type="text"
-              id="dni"
-              v-model="nuevoCliente.dni"
-              @blur="validarDni"
-              class="form-control w-auto w-25 text-center ms-2"
-              :class="{ 'is-invalid': !dniValido }"
-              required
-              oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
-              oninput="this.setCustomValidity('')"
-            />
-            <button
-              type="button"
-              class="btn btn btn-primary ms-3 border-0 shadow-none rounded-0"
-              @click="buscarClientePorDNI(nuevoCliente.dni)"
-            >
-              <i class="bi bi-search"></i>
-            </button>
+                <input
+                  type="text"
+                  id="dni"
+                  v-model="nuevoCliente.dni"
+                  @blur="validarDni"
+                  class="form-control w-auto w-25 text-center ms-2"
+                  :class="{ 'is-invalid': !dniValido }"
+                  required
+                  oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
+                  oninput="this.setCustomValidity('')"
+                  :disabled="!avisoLegal"
+                />
+                <button
+                  type="button"
+                  class="btn btn btn-primary ms-3 border-0 shadow-none rounded-0"
+                  @click="buscarClientePorDNI(nuevoCliente.dni)"
+                  :disabled="!avisoLegal"
+                >
+                  <i class="bi bi-search"></i>
+                </button>
             <div v-if="!dniValido" class="invalid-feedback">
               DNI o NIE inválido.
             </div>
@@ -47,6 +49,7 @@
             id="fechaAlta"
             v-model="nuevoCliente.fechaAlta"
             class="form-control w-auto"
+            :disabled="!avisoLegal"
           />
         </div>
       </div>
@@ -65,6 +68,7 @@
             class="form-control flex-grow-1"
             @blur="capitalizarTexto('nombre')"
             required
+            :disabled="!avisoLegal"
           />
         </div>
 
@@ -80,6 +84,7 @@
             class="form-control flex-grow-1"
             @blur="capitalizarTexto('apellidos')"
             required
+            :disabled="!avisoLegal"
           />
         </div>
       </div>
@@ -99,6 +104,7 @@
             @blur="validarEmail('email')"
             :class="{ 'is-invalid': !emailValido }"
             required
+            :disabled="!avisoLegal"
           />
         </div>
 
@@ -114,6 +120,7 @@
             @blur="validarMovil('movil')"
             class="form-control flex-grow-1 text-center"
             :class="{ 'is-invalid': !movilValido }"
+            :disabled="!avisoLegal"
           />
         </div>
       </div>
@@ -131,6 +138,7 @@
             v-model="nuevoCliente.direccion"
             @blur="capitalizarTexto('direccion')"
             class="form-control flex-grow-1"
+            :disabled="!avisoLegal"
           />
         </div>
 
@@ -144,6 +152,7 @@
             v-model="nuevoCliente.provincia"
             class="form-select flex-grow-1 w-25"
             @change="filtrarMunicipios"
+            :disabled="!avisoLegal"
           >
             <option disabled value="">Seleccione provincia</option>
             <option v-for="prov in provincias" :key="prov.id" :value="prov.nm">
@@ -161,6 +170,7 @@
             id="municipio"
             v-model="nuevoCliente.municipio"
             class="form-select flex-grow-1 w-auto"
+            :disabled="!avisoLegal"
           >
             <option disabled value="">Seleccione municipio</option>
             <option
@@ -174,6 +184,19 @@
         </div>
       </div>
 
+      <!-- Aviso Legal -->
+      <div class="text-center ">
+        <input
+          type="checkbox"
+          id="avisolegal"
+          v-model="avisoLegal"
+          class="form-check-input"
+        />
+        <span class="form-check-label ms-3 me-5 mb-0">
+          <router-link to="/avisolegal">Aceptar terminos y condiciones: Aviso Legal</router-link>
+        </span>
+      </div>
+
       <!-- Histórico -->
       <div class="d-flex justify-content-end mb-2">
         <input
@@ -182,6 +205,7 @@
           v-model="mostrarHistorico"
           class="form-check-input"
           @change="cargarClientes"
+          :disabled="!avisoLegal"
         />
         <label for="historico" class="form-check-label ms-3 me-5 mb-0"
           >Histórico</label
@@ -193,6 +217,7 @@
         <button
           type="submit"
           class="btn btn-primary border-0 shadow-none rounded-0"
+          :disabled="!avisoLegal"
         >
           Cargar
         </button>
@@ -222,27 +247,30 @@
             <td class="text-center">{{ cliente.movil }}</td>
             <td class="text-center">{{ cliente.municipio }}</td>
             <td class="align-middle text-center">
-              <button
-                @click="eliminarCliente(cliente.movil)"
-                class="btn btn-danger btn-sm border-0 ms-4 me-2 shadow-none rounded-0"
-              >
-                <i class="bi bi-trash"></i>
-              </button>
-              <button
-                @click="editarCliente(cliente.movil)"
-                class="btn btn-warning btn-sm border-0 shadow-none rounded-0"
-                title="Editar Cliente"
-              >
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button
-                v-if="cliente.historico === false"
-                @click="activarCliente(cliente.movil)"
-                class="btn btn-secondary btn-sm ms-2 border-0 shadow-none rounded-0"
-                title="Activar Cliente"
-              >
-                <i class="bi bi-person-check"></i>
-              </button>
+                <button
+                  @click="eliminarCliente(cliente.movil)"
+                  class="btn btn-danger btn-sm border-0 ms-4 me-2 shadow-none rounded-0"
+                  :disabled="!avisoLegal"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button
+                  @click="editarCliente(cliente.movil)"
+                  class="btn btn-warning btn-sm border-0 shadow-none rounded-0"
+                  title="Editar Cliente"
+                  :disabled="!avisoLegal"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  v-if="cliente.historico === false"
+                  @click="activarCliente(cliente.movil)"
+                  class="btn btn-secondary btn-sm ms-2 border-0 shadow-none rounded-0"
+                  title="Activar Cliente"
+                  :disabled="!avisoLegal"
+                >
+                  <i class="bi bi-person-check"></i>
+                </button>
             </td>
           </tr>
         </tbody>
@@ -268,6 +296,7 @@ import provmuniData from '@/data/provmuni.json';
 import { ref, onMounted, computed } from 'vue';
 import { getClientes, deleteCliente, addCliente, updateCliente, getClientePorDni } from '@/api/clientes.js';
 import Swal from 'sweetalert2';
+import AvisoLegal from './AvisoLegal.vue';
 
 // SCRIPTS CRUD //
 
@@ -289,6 +318,9 @@ const nuevoCliente = ref({
 const editando = ref(false); // Estado de edición
 const clienteEditandoId = ref(null); // ID del cliente que se está editando
 const mostrarHistorico = ref(false);
+// Controla si el usuario ha aceptado el Aviso Legal. Hasta que no sea true,
+// la mayoría de campos y acciones estarán deshabilitados.
+const avisoLegal = ref(false);
 const clientes = ref([]);
 
 const numClientes = ref(0);
