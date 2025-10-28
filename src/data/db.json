@@ -405,7 +405,8 @@
       "provincia": "Tarragona",
       "municipio": "Calafell",
       "fechaAlta": "2025-10-14",
-      "historico": true
+      "historico": true,
+      "lopd": true
     },
     {
       "id": "9645",

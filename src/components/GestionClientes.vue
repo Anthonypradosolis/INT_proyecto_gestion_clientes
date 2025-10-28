@@ -296,7 +296,8 @@ const nuevoCliente = ref({
   provincia: '',
   municipio: '',
   fechaAlta: '',
-  historico: false // luego lo cambiamos a true
+  historico: false, // luego lo cambiamos a true
+  lopd: false // aceptación del aviso legal (L.O.P.D.)
 });
 
 // Funcion lisar clientes con get
@@ -368,6 +369,16 @@ const cargarClientes = () => {
 
 
 const guardarCliente = async () => {
+  // Antes de guardar, el usuario debe haber aceptado el Aviso Legal
+  if (!avisoLegal.value) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Debes aceptar el Aviso Legal antes de guardar',
+      showConfirmButton: false,
+      timer: 2000
+    });
+    return;
+  }
   // Validar duplicados solo si estás creando (no si editando)
 
   if (!editando.value) {
@@ -403,6 +414,9 @@ const guardarCliente = async () => {
       // Validar campos
       // Modificar cliente (PUT)+
 
+      // Asegurarnos de guardar el estado de aceptación LOPD según el checkbox
+      nuevoCliente.value.lopd = avisoLegal.value;
+
       const clienteActualizado = await updateCliente(clienteEditandoId.value, nuevoCliente.value);
 
       // Actualiza el cliente en la lista local
@@ -416,6 +430,9 @@ const guardarCliente = async () => {
       });
     } else {
       // Agregar cliente (POST)
+
+      // Asegurarnos de guardar el estado de aceptación LOPD según el checkbox
+      nuevoCliente.value.lopd = avisoLegal.value;
 
       const clienteAgregado = await addCliente(nuevoCliente.value);
       clientes.value.push(clienteAgregado);
@@ -438,7 +455,8 @@ const guardarCliente = async () => {
       provincia: '',
       municipio: '',
       fechaAlta: '',
-      historico: true
+      historico: true,
+      lopd: false
     };
     editando.value = true;
     clienteEditandoId.value = null;
