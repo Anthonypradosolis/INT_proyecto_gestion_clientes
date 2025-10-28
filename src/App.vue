@@ -15,7 +15,7 @@ import NavBar from './components/NavBar.vue'
 import FooTer from './components/Footer.vue'
 import GestionClientes from './components/GestionClientes.vue'
 import NotiCias from './components/NotiCias.vue'
-
+import AvisoLegal from './components/AvisoLegal.vue'
 </script>
 
 <style scoped>
