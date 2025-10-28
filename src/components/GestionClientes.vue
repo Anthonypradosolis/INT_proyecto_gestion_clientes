@@ -10,16 +10,25 @@
         <!-- Columna DNI -->
         <div class="col-md-4 d-flex align-items-center">
           <label for="dni" class="form-label mb-0 w-25">DNI: </label>
-          <div class="flex-grow-1">
+          <div class="flex-grow-1 d-flex align-items-center">
             <input
               type="text"
               id="dni"
               v-model="nuevoCliente.dni"
               @blur="validarDni"
-              class="form-control w-auto"
+              class="form-control w-auto w-25 text-center ms-2"
               :class="{ 'is-invalid': !dniValido }"
               required
+              oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
+              oninput="this.setCustomValidity('')"
             />
+            <button
+              type="button"
+              class="btn btn btn-primary ms-3 border-0 shadow-none rounded-0"
+              @click="buscarClientePorDNI(nuevoCliente.dni)"
+            >
+              <i class="bi bi-search"></i>
+            </button>
             <div v-if="!dniValido" class="invalid-feedback">
               DNI o NIE inválido.
             </div>
@@ -257,7 +266,7 @@
 <script setup>
 import provmuniData from '@/data/provmuni.json';
 import { ref, onMounted, computed } from 'vue';
-import { getClientes, deleteCliente, addCliente, updateCliente } from '@/api/clientes.js';
+import { getClientes, deleteCliente, addCliente, updateCliente, getClientePorDni } from '@/api/clientes.js';
 import Swal from 'sweetalert2';
 
 // SCRIPTS CRUD //
@@ -599,7 +608,7 @@ const buscarClientePorDNI = async (dni) => {
 
     // ✅ Cargar los datos en el formulario
     nuevoCliente.value = { ...cliente };
-    nuevoCliente.value.fecha_alta = formatearFechaParaInput(cliente.fecha_alta);
+    nuevoCliente.value.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
 
     // Actualiza lista de municipios si cambia la provincia
     filtrarMunicipios();
