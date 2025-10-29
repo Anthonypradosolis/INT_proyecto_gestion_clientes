@@ -11,24 +11,24 @@
         <div class="col-md-4 d-flex align-items-center">
           <label for="dni" class="form-label mb-0 w-25">DNI: </label>
           <div class="flex-grow-1 d-flex align-items-center">
-                <input
-                  type="text"
-                  id="dni"
-                  v-model="nuevoCliente.dni"
-                  @blur="validarDni"
-                  class="form-control w-auto w-25 text-center ms-2"
-                  :class="{ 'is-invalid': !dniValido }"
-                  required
-                  oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
-                  oninput="this.setCustomValidity('')"
-                />
-                <button
-                  type="button"
-                  class="btn btn btn-primary ms-3 border-0 shadow-none rounded-0"
-                  @click="buscarClientePorDNI(nuevoCliente.dni)"
-                >
-                  <i class="bi bi-search"></i>
-                </button>
+            <input
+              type="text"
+              id="dni"
+              v-model="nuevoCliente.dni"
+              @blur="validarDni"
+              class="form-control w-auto w-25 text-center ms-2"
+              :class="{ 'is-invalid': !dniValido }"
+              required
+              oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
+              oninput="this.setCustomValidity('')"
+            />
+            <button
+              type="button"
+              class="btn btn btn-primary ms-3 border-0 shadow-none rounded-0"
+              @click="buscarClientePorDNI(nuevoCliente.dni)"
+            >
+              <i class="bi bi-search"></i>
+            </button>
             <div v-if="!dniValido" class="invalid-feedback">
               DNI o NIE inválido.
             </div>
@@ -175,7 +175,7 @@
       </div>
 
       <!-- Aviso Legal -->
-      <div class="text-center ">
+      <div class="text-center">
         <input
           type="checkbox"
           id="avisolegal"
@@ -183,12 +183,15 @@
           class="form-check-input"
         />
         <span class="form-check-label ms-3 me-5 mb-0">
-          <router-link to="/avisolegal">Aceptar terminos y condiciones: Aviso Legal</router-link>
+          Aceptar terminos y condiciones:
+          <router-link to="/avisolegal" target="_blank"
+            >Aviso Legal</router-link
+          >
         </span>
       </div>
-
       <!-- Histórico -->
-      <div class="d-flex justify-content-end mb-2">
+      <!-- Checkbox al final -->
+      <div class="form-check form-switch ms-3">
         <input
           type="checkbox"
           id="historico"
@@ -196,19 +199,17 @@
           class="form-check-input"
           @change="cargarClientes"
         />
-        <label for="historico" class="form-check-label ms-3 me-5 mb-0"
-          >Histórico</label
-        >
+        <label for="historico" class="form-check-label ms-2">Histórico</label>
       </div>
 
       <!-- Botón centrado -->
       <div class="text-center">
         <button
           type="submit"
-          class="btn btn-primary border-0 shadow-none rounded-0"
           :disabled="!avisoLegal"
+          class="btn btn-primary px-4"
         >
-          Cargar
+          {{ editando ? "Modificar Cliente" : "Guardar Cliente" }}
         </button>
       </div>
     </form>
@@ -228,7 +229,7 @@
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
-        <tbody>          
+        <tbody>
           <tr v-for="(cliente, index) in clientesPaginados" :key="index">
             <th scope="row" class="text-center">{{ index + 1 }}</th>
             <td>{{ cliente.apellidos }}</td>
@@ -236,68 +237,82 @@
             <td class="text-center">{{ cliente.movil }}</td>
             <td class="text-center">{{ cliente.municipio }}</td>
             <td class="align-middle text-center">
-                <button
-                  @click="eliminarCliente(cliente.movil)"
-                  class="btn btn-danger btn-sm border-0 ms-4 me-2 shadow-none rounded-0"
-                >
-                  <i class="bi bi-trash"></i>
-                </button>
-                <button
-                  @click="editarCliente(cliente.movil)"
-                  class="btn btn-warning btn-sm border-0 shadow-none rounded-0"
-                  title="Editar Cliente"
-                >
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button
-                  v-if="cliente.historico === false"
-                  @click="activarCliente(cliente.movil)"
-                  class="btn btn-secondary btn-sm ms-2 border-0 shadow-none rounded-0"
-                  title="Activar Cliente"
-                >
-                  <i class="bi bi-person-check"></i>
-                </button>
+              <button
+                @click="eliminarCliente(cliente.movil)"
+                class="btn btn-danger btn-sm border-0 ms-4 me-2 shadow-none rounded-0"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+              <button
+                @click="editarCliente(cliente.movil)"
+                class="btn btn-warning btn-sm border-0 shadow-none rounded-0"
+                title="Editar Cliente"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button
+                v-if="cliente.historico === false"
+                @click="activarCliente(cliente)"
+                class="btn btn-secondary btn-sm ms-2 border-0 shadow-none rounded-0"
+                title="Activar Cliente"
+              >
+                <i class="bi bi-person-check"></i>
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
-<!-- Navegación de página-->
-       <div class="d-flex justify-content-center my-3">
-        <button class="btn btn-outline-primary btn-sm me-2 rounded-0 border-1 shadow-none" 
-        @click = "beforePagina" :disabled="currentPage <= 1">
-          <i class="bi bi-chevron-left "></i>
+      <!-- Navegación de página-->
+      <div class="d-flex justify-content-center my-3">
+        <button
+          class="btn btn-outline-primary btn-sm me-2 rounded-0 border-1 shadow-none"
+          @click="beforePagina"
+          :disabled="currentPage <= 1"
+        >
+          <i class="bi bi-chevron-left"></i>
         </button>
-        <span class="mx-3 align-self-center text-muted">Página {{ currentPage  }}</span>
-        <button class="btn btn-outline-primary btn-sm rounded-0 border-1 shadow-none" 
-        @click="nextPagina" :disabled="currentPage >= totalPages">
-         <i class="bi bi-chevron-right "></i>
+        <span class="mx-3 align-self-center text-muted"
+          >Página {{ currentPage }}</span
+        >
+        <button
+          class="btn btn-outline-primary btn-sm rounded-0 border-1 shadow-none"
+          @click="nextPagina"
+          :disabled="currentPage >= totalPages"
+        >
+          <i class="bi bi-chevron-right"></i>
         </button>
-       </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import provmuniData from '@/data/provmuni.json';
-import { ref, onMounted, computed } from 'vue';
-import { getClientes, deleteCliente, addCliente, updateCliente, getClientePorDni } from '@/api/clientes.js';
-import Swal from 'sweetalert2';
-import AvisoLegal from './AvisoLegal.vue';
+import provmuniData from "@/data/provmuni.json";
+import { ref, onMounted, computed } from "vue";
+import {
+  getClientes,
+  deleteCliente,
+  addCliente,
+  updateCliente,
+  getClientePorDni,
+} from "@/api/clientes.js";
+import Swal from "sweetalert2";
+import AvisoLegal from "./AvisoLegal.vue";
 
 // SCRIPTS CRUD //
 
 const nuevoCliente = ref({
-  dni: '',
-  nombre: '',
-  apellidos: '',
-  email: '',
-  movil: '',
-  direccion: '',
-  provincia: '',
-  municipio: '',
-  fechaAlta: '',
+  dni: "",
+  nombre: "",
+  apellidos: "",
+  email: "",
+  movil: "",
+  direccion: "",
+  provincia: "",
+  municipio: "",
+  fechaAlta: "",
   historico: false, // luego lo cambiamos a true
-  lopd: false // aceptación del aviso legal (L.O.P.D.)
+  lopd: false, // aceptación del aviso legal (L.O.P.D.)
 });
 
 // Funcion lisar clientes con get
@@ -317,12 +332,12 @@ const clientesPorPage = 10; // por defecto seria ref(10) y asi con 20 y 30 que s
 
 // Zona Cargar clientes Al Montar el componente
 onMounted(async () => {
-  cargarClientes()
+  cargarClientes();
   currentPage.value = 1;
 });
- ///avanzar y retroceder
- 
- // Métodos de paginación
+///avanzar y retroceder
+
+// Métodos de paginación
 const beforePagina = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -330,17 +345,16 @@ const beforePagina = () => {
 };
 
 const nextPagina = () => {
-  const totalPages = Math.ceil(numClientes.value / clientesPorPage); 
+  const totalPages = Math.ceil(numClientes.value / clientesPorPage);
   //redondear hacia arriba para mostrar la última página aunque no esté completa
   if (currentPage.value < totalPages) {
     currentPage.value++;
   }
 };
 
-
 // Propiedad computada para obtener los clientes en la página actual
 // computed crea una propiedad reactiva que se actualiza automáticamente
-// cuando cambian las dependencias (currentPage o clientes) 
+// cuando cambian las dependencias (currentPage o clientes)
 // es decir paso pagina o vuelvo atrás cargando los clientes de esa página
 // slice extrae una sección del array clientes
 // start es el índice inicial y end el índice final (no incluido)
@@ -351,48 +365,45 @@ const clientesPaginados = computed(() => {
   return clientes.value.slice(start, end);
 });
 
-
-
 const cargarClientes = () => {
-  getClientes(mostrarHistorico.value).then(data => {
+  getClientes(mostrarHistorico.value).then((data) => {
     clientes.value = data;
     numClientes.value = data.length; // ✅ actualizar total de clientes
   });
   Swal.fire({
-    icon: 'success',
-    title: 'Listando Clientes',
+    icon: "success",
+    title: "Listando Clientes",
     showConfirmButton: false,
-    timer: 1500
+    timer: 1500,
   });
 };
-
-
 
 const guardarCliente = async () => {
   // Antes de guardar, el usuario debe haber aceptado el Aviso Legal
   if (!avisoLegal.value) {
     Swal.fire({
-      icon: 'warning',
-      title: 'Debes aceptar el Aviso Legal antes de guardar',
+      icon: "warning",
+      title: "Debes aceptar el Aviso Legal antes de guardar",
       showConfirmButton: false,
-      timer: 2000
+      timer: 2000,
     });
     return;
   }
   // Validar duplicados solo si estás creando (no si editando)
 
   if (!editando.value) {
-    const duplicado = clientes.value.find(cliente =>
-      cliente.dni === nuevoCliente.value.dni ||
-      cliente.movil === nuevoCliente.value.movil ||
-      cliente.email === nuevoCliente.value.email
+    const duplicado = clientes.value.find(
+      (cliente) =>
+        cliente.dni === nuevoCliente.value.dni ||
+        cliente.movil === nuevoCliente.value.movil ||
+        cliente.email === nuevoCliente.value.email
     );
     if (duplicado) {
       Swal.fire({
-        icon: 'error',
-        title: 'DNI, móvil o email duplicados',
+        icon: "error",
+        title: "DNI, móvil o email duplicados",
         showConfirmButton: false,
-        timer: 2000
+        timer: 2000,
       });
       return;
     }
@@ -400,11 +411,13 @@ const guardarCliente = async () => {
 
   // Confirmación antes de guardar
   const result = await Swal.fire({
-    title: editando.value ? '¿Desea modificar este cliente?' : '¿Desea grabar este cliente?',
-    icon: 'warning',
+    title: editando.value
+      ? "¿Desea modificar este cliente?"
+      : "¿Desea grabar este cliente?",
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonText: editando.value ? 'Modificar' : 'Guardar',
-    cancelButtonText: 'Cancelar'
+    confirmButtonText: editando.value ? "Modificar" : "Guardar",
+    cancelButtonText: "Cancelar",
   });
 
   if (!result.isConfirmed) return;
@@ -417,16 +430,21 @@ const guardarCliente = async () => {
       // Asegurarnos de guardar el estado de aceptación LOPD según el checkbox
       nuevoCliente.value.lopd = avisoLegal.value;
 
-      const clienteActualizado = await updateCliente(clienteEditandoId.value, nuevoCliente.value);
+      const clienteActualizado = await updateCliente(
+        clienteEditandoId.value,
+        nuevoCliente.value
+      );
 
       // Actualiza el cliente en la lista local
-      const index = clientes.value.findIndex(c => c.id === clienteEditandoId.value);
+      const index = clientes.value.findIndex(
+        (c) => c.id === clienteEditandoId.value
+      );
       if (index !== -1) clientes.value[index] = clienteActualizado;
       Swal.fire({
-        icon: 'success',
-        title: 'Cliente modificado',
+        icon: "success",
+        title: "Cliente modificado",
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
     } else {
       // Agregar cliente (POST)
@@ -437,26 +455,26 @@ const guardarCliente = async () => {
       const clienteAgregado = await addCliente(nuevoCliente.value);
       clientes.value.push(clienteAgregado);
       Swal.fire({
-        icon: 'success',
-        title: 'Cliente agregado',
+        icon: "success",
+        title: "Cliente agregado",
         showConfirmButton: false,
-        timer: 1500
+        timer: 1500,
       });
     }
 
     // Reset formulario y estado
     nuevoCliente.value = {
-      dni: '',
-      nombre: '',
-      apellidos: '',
-      email: '',
-      movil: '',
-      direccion: '',
-      provincia: '',
-      municipio: '',
-      fechaAlta: '',
+      dni: "",
+      nombre: "",
+      apellidos: "",
+      email: "",
+      movil: "",
+      direccion: "",
+      provincia: "",
+      municipio: "",
+      fechaAlta: "",
       historico: true,
-      lopd: false
+      lopd: false,
     };
     editando.value = true;
     clienteEditandoId.value = null;
@@ -468,28 +486,26 @@ const guardarCliente = async () => {
 
     // Refrescar lista completa (opcional)
     clientes.value = await getClientes();
-
   } catch (error) {
-    console.error('Error al guardar cliente:', error);
+    console.error("Error al guardar cliente:", error);
     Swal.fire({
-      icon: 'error',
-      title: 'Error al guardar cliente',
-      text: 'Inténtelo de nuevo o contacte con el administrador.',
+      icon: "error",
+      title: "Error al guardar cliente",
+      text: "Inténtelo de nuevo o contacte con el administrador.",
       showConfirmButton: false,
-      timer: 1500
+      timer: 1500,
     });
   }
 };
-
 
 // Función para activar cliente (poner historico en true)
 const activarCliente = async (cliente) => {
   const confirmacion = await Swal.fire({
     title: `¿Activar cliente ${cliente.nombre} ${cliente.apellidos}?`,
-    icon: 'question',
+    icon: "question",
     showCancelButton: true,
-    confirmButtonText: 'Activar',
-    cancelButtonText: 'Cancelar'
+    confirmButtonText: "Activar",
+    cancelButtonText: "Cancelar",
   });
 
   if (!confirmacion.isConfirmed) return;
@@ -502,47 +518,45 @@ const activarCliente = async (cliente) => {
     const actualizado = await updateCliente(cliente.id, clienteActivado);
 
     // Actualizar la lista local (opcional, también puedes volver a cargar todo)
-    const index = clientes.value.findIndex(c => c.id === cliente.id);
+    const index = clientes.value.findIndex((c) => c.id === cliente.id);
     if (index !== -1) {
       clientes.value[index] = actualizado;
     }
 
     Swal.fire({
-      icon: 'success',
-      title: 'Cliente reactivado',
+      icon: "success",
+      title: "Cliente reactivado",
       showConfirmButton: false,
-      timer: 1500
+      timer: 1500,
     });
 
     // Recargar lista actualizada
     cargarClientes();
-
   } catch (error) {
-    console.error('Error al reactivar cliente:', error);
+    console.error("Error al reactivar cliente:", error);
     Swal.fire({
-      icon: 'error',
-      title: 'Error al activar cliente',
-      text: 'Por favor, intenta de nuevo.',
-      timer: 1500
+      icon: "error",
+      title: "Error al activar cliente",
+      text: "Por favor, intenta de nuevo.",
+      timer: 1500,
     });
   }
 };
-
 
 const agregarCliente = () => {
   clientes.value.push({ ...nuevoCliente.value });
   // Reiniciar el formulario
   nuevoCliente.value = {
-    dni: '',
-    nombre: '',
-    apellidos: '',
-    email: '',
-    movil: '',
-    direccion: '',
-    provincia: '',
-    municipio: '',
-    fechaAlta: '',
-    historico: false
+    dni: "",
+    nombre: "",
+    apellidos: "",
+    email: "",
+    movil: "",
+    direccion: "",
+    provincia: "",
+    municipio: "",
+    fechaAlta: "",
+    historico: false,
   };
 };
 
@@ -552,14 +566,16 @@ const eliminarCliente = async (movil) => {
 
   clientes.value = await getClientes();
   // Buscar cliente completo (que incluye el ID)
-  const clienteAEliminar = clientes.value.find(cliente => cliente.movil === movil);
+  const clienteAEliminar = clientes.value.find(
+    (cliente) => cliente.movil === movil
+  );
 
   if (!clienteAEliminar) {
     Swal.fire({
-      icon: 'error',
-      title: 'Cliente no encontrado',
+      icon: "error",
+      title: "Cliente no encontrado",
       showConfirmButton: false,
-      timer: 1500
+      timer: 1500,
     });
     return;
   }
@@ -567,12 +583,11 @@ const eliminarCliente = async (movil) => {
   // Pedir confirmación antes de eliminar
   const result = await Swal.fire({
     title: `¿Eliminar al cliente ${clienteAEliminar.nombre} ${clienteAEliminar.apellidos}?`,
-    icon: 'warning',
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
   });
-
 
   // Si no confirma, salir
   if (!result.isConfirmed) return;
@@ -583,10 +598,10 @@ const eliminarCliente = async (movil) => {
   clientes.value = await getClientes();
 
   Swal.fire({
-    icon: 'success',
-    title: 'Cliente eliminado',
+    icon: "success",
+    title: "Cliente eliminado",
     showConfirmButton: false,
-    timer: 1500
+    timer: 1500,
   });
 };
 // añadir que cuando editamos editamos a un usuario no se pueda editar el dni
@@ -602,7 +617,7 @@ const editarCliente = (movil) => {
     });
     return;
   }
- 
+
   // Copiar datos al formulario
   nuevoCliente.value = { ...cliente }; // 🔁 Aquí cargas el formulario con los datos
   editando.value = true;
@@ -614,16 +629,15 @@ const editarCliente = (movil) => {
   clienteEditandoId.value = cliente.id;
 };
 
-
 ///CODIGO BUSQUEDA COMPONENTES
 
 const buscarClientePorDNI = async (dni) => {
-  if (!dni || dni.trim() === '') {
+  if (!dni || dni.trim() === "") {
     Swal.fire({
-      icon: 'warning',
-      title: 'Debe introducir un DNI antes de buscar.',
+      icon: "warning",
+      title: "Debe introducir un DNI antes de buscar.",
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
     return;
   }
@@ -633,11 +647,11 @@ const buscarClientePorDNI = async (dni) => {
 
     if (!cliente) {
       Swal.fire({
-        icon: 'info',
-        title: 'Cliente no encontrado',
-        text: 'No existe ningún cliente con ese DNI.',
+        icon: "info",
+        title: "Cliente no encontrado",
+        text: "No existe ningún cliente con ese DNI.",
         timer: 1500,
-        showConfirmButton: false
+        showConfirmButton: false,
       });
       return;
     }
@@ -653,60 +667,59 @@ const buscarClientePorDNI = async (dni) => {
     clienteEditandoId.value = cliente.id;
 
     Swal.fire({
-      icon: 'success',
-      title: 'Cliente encontrado y cargado',
+      icon: "success",
+      title: "Cliente encontrado y cargado",
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
   } catch (error) {
-    console.error('Error buscando cliente por DNI:', error);
+    console.error("Error buscando cliente por DNI:", error);
     Swal.fire({
-      icon: 'error',
-      title: 'Error al buscar cliente',
-      text: 'Verifique la conexión o contacte con el administrador.',
+      icon: "error",
+      title: "Error al buscar cliente",
+      text: "Verifique la conexión o contacte con el administrador.",
       timer: 2000,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
   }
-
-}
+};
 // SCRIPS AUXILIARES
 
 // Estado de validez del DNI/NIE si la estructura de datos es más compleja se usa reactive
-const dniValido = ref(true);  // Por defecto es válido y no muestra error al iniciar
+const dniValido = ref(true); // Por defecto es válido y no muestra error al iniciar
 
 // Función para validar DNI y NIE
 const validarDniNie = (valor) => {
-  const letras = 'TRWAGMYFPDXBNJZSQVHLCKE';
+  const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
   const dniRegex = /^[0-9]{8}[A-Z]$/;
   const nieRegex = /^[XYZ][0-9]{7}[A-Z]$/;
 
   valor = valor.toUpperCase();
 
   if (dniRegex.test(valor)) {
-      const numero = parseInt(valor.slice(0, 8), 10);
-      const letra = valor.charAt(8);
-      return letra === letras[numero % 23];  //sale con true si es válido
-    } else if (nieRegex.test(valor)) {
-      const nie = valor.replace('X', '0').replace('Y', '1').replace('Z', '2');
-      const numero = parseInt(nie.slice(0, 8), 10);
-      const letra = valor.charAt(8);
-      return letra === letras[numero % 23];  //sale con true si es válido
-    }
+    const numero = parseInt(valor.slice(0, 8), 10);
+    const letra = valor.charAt(8);
+    return letra === letras[numero % 23]; //sale con true si es válido
+  } else if (nieRegex.test(valor)) {
+    const nie = valor.replace("X", "0").replace("Y", "1").replace("Z", "2");
+    const numero = parseInt(nie.slice(0, 8), 10);
+    const letra = valor.charAt(8);
+    return letra === letras[numero % 23]; //sale con true si es válido
+  }
   return false;
 };
 
 // Función única: capitaliza y asigna en el mismo paso
 const capitalizarTexto = (campo) => {
-  const texto = nuevoCliente.value[campo] ?? '';
+  const texto = nuevoCliente.value[campo] ?? "";
   nuevoCliente.value[campo] = texto
     .toLowerCase()
-    .split(' ')
-    .map(palabra => {
-      if (!palabra) return '';
+    .split(" ")
+    .map((palabra) => {
+      if (!palabra) return "";
       return palabra.charAt(0).toLocaleUpperCase() + palabra.slice(1);
     })
-    .join(' ');
+    .join(" ");
 };
 
 // control email
@@ -723,14 +736,14 @@ const validarEmail = () => {
 
 const provincias = ref(provmuniData.provincias); // Array de provincias
 const municipios = ref(provmuniData.municipios); // Array de municipios para filtrarlos
-const municipiosFiltrados = ref([]);  // vacío pero contendrá los municipios filtrados
+const municipiosFiltrados = ref([]); // vacío pero contendrá los municipios filtrados
 
 const filtrarMunicipios = () => {
   // nombre de la provincia elegida en el <select>
   const nombreProv = nuevoCliente.value.provincia;
 
   // 1️⃣ buscar en provincias el objeto con ese nombre
-  const prov = provincias.value.find(p => p.nm === nombreProv);
+  const prov = provincias.value.find((p) => p.nm === nombreProv);
   if (!prov) {
     municipiosFiltrados.value = [];
     return;
@@ -740,15 +753,13 @@ const filtrarMunicipios = () => {
   const codigoProv = prov.id.slice(0, 2);
 
   // 3️⃣ filtrar los municipios cuyo id empiece por esos dos dígitos
-  municipiosFiltrados.value = municipios.value.filter(
-    m => m.id.startsWith(codigoProv)
+  municipiosFiltrados.value = municipios.value.filter((m) =>
+    m.id.startsWith(codigoProv)
   );
 
   // 4️⃣ opcional: resetear el municipio si ya no corresponde
-  nuevoCliente.value.municipio = '';
+  nuevoCliente.value.municipio = "";
 };
-
-
 
 const movilValido = ref(true);
 // Validar al salir del campo
@@ -761,27 +772,26 @@ const validarMovil = () => {
   const movil = nuevoCliente.value.movil.trim();
   // Expresión para móvil español (9 dígitos, empieza por 6, 7, 8 o 9)
   const regex = /^[6789]\d{8}$/;
-  movilValido.value = regex.test(movil) || movil === '';
+  movilValido.value = regex.test(movil) || movil === "";
 };
 
 // conversor fecha
 function formatearFechaParaInput(fecha) {
-  if (!fecha) return '';
+  if (!fecha) return "";
 
   // Detecta formato dd/mm/yyyy
-  if (fecha.includes('/')) {
-    const [dd, mm, yyyy] = fecha.split('/');
-    return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+  if (fecha.includes("/")) {
+    const [dd, mm, yyyy] = fecha.split("/");
+    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
   }
 
   // Detecta formato yyyy-mm-dd
-  if (fecha.includes('-')) {
-    const partes = fecha.split('-');
+  if (fecha.includes("-")) {
+    const partes = fecha.split("-");
     if (partes.length === 3) return fecha; // ya formato ISO
   }
-  return '';
+  return "";
 }
-
 </script>
 
 <style scoped>

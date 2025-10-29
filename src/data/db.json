@@ -251,7 +251,7 @@
       "provincia": "Barcelona",
       "municipio": "Sabadell",
       "historico": true,
-      "lopd": false,
+      "lopd": true,
       "password": "",
       "id": "66fd"
     },
@@ -379,7 +379,8 @@
       "provincia": "Huelva",
       "municipio": "Alájar",
       "fechaAlta": "2025-10-09",
-      "historico": true
+      "historico": true,
+      "lopd": true
     },
     {
       "id": "68a1",
@@ -392,7 +393,8 @@
       "provincia": "Huelva",
       "municipio": "Cerro de Andévalo, El",
       "fechaAlta": "2025-10-08",
-      "historico": true
+      "historico": true,
+      "lopd": true
     },
     {
       "id": "b38d",
