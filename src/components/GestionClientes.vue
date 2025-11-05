@@ -116,6 +116,17 @@
             :class="{ 'is-invalid': !movilValido }"
           />
         </div>
+        <div class="col-md-3 d-flex align-items-center">
+          <label>Tipo de Cliente: </label>
+          <div class="ms-3">
+          <label for="radio-empresa">Empresa</label>
+          <input type="radio" id="radio-empresa" v-model="nuevoCliente.tipoCliente" class="ms-2">
+          </div>
+          <div class="ms-3">
+          <label for="radio-particular">Particular</label>
+          <input type="radio" id="radio-particular" v-model="nuevoCliente.tipoCliente" class="ms-2">
+          </div>
+        </div>
       </div>
 
       <!-- FILA Dirección, Provincia y Municipio -->
