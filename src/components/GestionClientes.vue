@@ -2,7 +2,7 @@
   <div
     class="container mx-auto mt-2 p-3 my-1 border rounded-0 shadow-sm min-vh-75 bg-light"
   >
-    <h3 class="text-center my-2">Gestión de Clientes</h3>
+    <h3 class="text-center my-2 gestion-header">Gestión de Clientes</h3>
     <!-- Formulario -->
     <form @submit.prevent="guardarCliente" class="mb-4">
       <!-- DNI con validación visual -->
@@ -16,7 +16,7 @@
               id="dni"
               v-model="nuevoCliente.dni"
               @blur="validarDni"
-              class="form-control w-auto w-25 text-center ms-2"
+              class="form-control w-auto w-25 text-center ms-0"
               :class="{ 'is-invalid': !dniValido }"
               required
               oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
@@ -34,7 +34,29 @@
             </div>
           </div>
         </div>
-
+        <div class="col-md-4 d-flex align-items-center">
+          <label>Tipo de Cliente: </label>
+          <div class="ms-3">
+            <label for="radio-empresa">Empresa:</label>
+            <input
+              type="radio"
+              id="radio-empresa"
+              name="radio"
+              v-model="nuevoCliente.tipoCliente"
+              class="ms-2"
+            />
+          </div>
+          <div class="ms-3">
+            <label for="radio-particular">Particular:</label>
+            <input
+              type="radio"
+              id="radio-particular"
+              name="radio"
+              v-model="nuevoCliente.tipoCliente"
+              class="ms-2"
+            />
+          </div>
+        </div>
         <!-- Columna Fecha de Alta a la derecha -->
         <div
           class="col-md-4 ms-auto d-flex align-items-center justify-content-end"
@@ -115,17 +137,6 @@
             class="form-control flex-grow-1 text-center"
             :class="{ 'is-invalid': !movilValido }"
           />
-        </div>
-        <div class="col-md-3 d-flex align-items-center">
-          <label>Tipo de Cliente: </label>
-          <div class="ms-3">
-          <label for="radio-empresa">Empresa</label>
-          <input type="radio" id="radio-empresa" v-model="nuevoCliente.tipoCliente" class="ms-2">
-          </div>
-          <div class="ms-3">
-          <label for="radio-particular">Particular</label>
-          <input type="radio" id="radio-particular" v-model="nuevoCliente.tipoCliente" class="ms-2">
-          </div>
         </div>
       </div>
 
@@ -220,7 +231,7 @@
           :disabled="!avisoLegal"
           class="btn btn-primary px-4"
         >
-          {{ editando ? "Modificar Cliente" : "Guardar Cliente" }}
+          {{ editando ? "Modificar" : "Guardar" }}
         </button>
       </div>
     </form>
@@ -824,5 +835,20 @@ function formatearFechaParaInput(fecha) {
 
 .form-control {
   width: 100%;
+}
+
+.gestion-header {
+  /* Ocupa todo el ancho del contenedor */
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 0.5rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px 6px 6px 6px; /* opcional: redondeo en los bordes superiores */
+
+  background-color: #b5caff;
+  color: #03306b;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
 }
 </style>

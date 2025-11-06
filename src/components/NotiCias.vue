@@ -2,7 +2,6 @@
   <div class="container mx-auto mt-2 p-3 my-1 border rounded-0 shadow-sm bg-light">
     <h3 class="text-center my-2">Gestión de Noticias</h3>
 
-    <!-- Formulario en filas/cols estilo Bootstrap -->
     <form @submit.prevent="agregarNoticia" class="mb-4">
       <div class="mb-3 row align-items-center">
         <div class="col-md-6 d-flex align-items-center">
