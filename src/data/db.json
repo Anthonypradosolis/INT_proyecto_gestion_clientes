@@ -13,6 +13,7 @@
       "historico": false,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "7169"
     },
     {
@@ -26,8 +27,9 @@
       "provincia": "Barcelona",
       "municipio": "Badalona",
       "historico": true,
-      "lopd": false,
+      "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "a079"
     },
     {
@@ -43,6 +45,7 @@
       "historico": false,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "56df"
     },
     {
@@ -58,6 +61,7 @@
       "historico": true,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "c356"
     },
     {
@@ -73,6 +77,7 @@
       "historico": false,
       "lopd": false,
       "password": "",
+      "tipo": "user",
       "id": "960a"
     },
     {
@@ -86,8 +91,9 @@
       "provincia": "Zaragoza",
       "municipio": "Calatayud",
       "historico": true,
-      "lopd": false,
+      "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "eda8"
     },
     {
@@ -103,6 +109,7 @@
       "historico": false,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "39b2"
     },
     {
@@ -118,6 +125,7 @@
       "historico": true,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "d6a9"
     },
     {
@@ -133,6 +141,7 @@
       "historico": false,
       "lopd": false,
       "password": "",
+      "tipo": "user",
       "id": "0f47"
     },
     {
@@ -146,8 +155,9 @@
       "provincia": "Bizkaia",
       "municipio": "Getxo",
       "historico": true,
-      "lopd": false,
+      "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "1955"
     },
     {
@@ -163,6 +173,7 @@
       "historico": true,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "1b52"
     },
     {
@@ -176,8 +187,9 @@
       "provincia": "Barcelona",
       "municipio": "Terrassa",
       "historico": true,
-      "lopd": false,
+      "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "58cf"
     },
     {
@@ -193,6 +205,7 @@
       "historico": false,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "e406"
     },
     {
@@ -208,6 +221,7 @@
       "historico": true,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "ba17"
     },
     {
@@ -223,6 +237,7 @@
       "historico": false,
       "lopd": false,
       "password": "",
+      "tipo": "user",
       "id": "b1f4"
     },
     {
@@ -238,6 +253,7 @@
       "historico": false,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "76d6"
     },
     {
@@ -253,6 +269,7 @@
       "historico": true,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "66fd"
     },
     {
@@ -268,6 +285,7 @@
       "historico": false,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "4d3e"
     },
     {
@@ -283,6 +301,7 @@
       "historico": false,
       "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "bacd"
     },
     {
@@ -298,6 +317,7 @@
       "historico": false,
       "lopd": false,
       "password": "",
+      "tipo": "user",
       "id": "9115"
     },
     {
@@ -311,8 +331,9 @@
       "provincia": "Zaragoza",
       "municipio": "Ejea de los Caballeros",
       "historico": true,
-      "lopd": false,
+      "lopd": true,
       "password": "",
+      "tipo": "user",
       "id": "82f2"
     },
     {
@@ -326,7 +347,9 @@
       "provincia": "Cuenca",
       "municipio": "Alconchel de la Estrella",
       "fechaAlta": "2025-10-02",
-      "historico": true
+      "historico": true,
+      "email": "sonia@gmail.com",
+      "lopd": true
     },
     {
       "id": "9afd",
@@ -340,6 +363,7 @@
       "municipio": "Vigo",
       "fechaAlta": "2025-02-10",
       "historico": false,
+      "tipo": "user",
       "email": "asdf@asdf.ok"
     },
     {
@@ -353,6 +377,7 @@
       "provincia": "Guadalajara",
       "municipio": "Driebes",
       "fechaAlta": "2025-10-03",
+      "tipo": "user",
       "historico": false
     },
     {
@@ -366,6 +391,7 @@
       "provincia": "Girona",
       "municipio": "Arbúcies",
       "fechaAlta": "2025-10-03",
+      "tipo": "user",
       "historico": true
     },
     {
@@ -380,6 +406,7 @@
       "municipio": "Alájar",
       "fechaAlta": "2025-10-09",
       "historico": true,
+      "tipo": "user",
       "lopd": true
     },
     {
@@ -394,6 +421,7 @@
       "municipio": "Cerro de Andévalo, El",
       "fechaAlta": "2025-10-08",
       "historico": true,
+      "tipo": "user",
       "lopd": true
     },
     {
@@ -408,6 +436,7 @@
       "municipio": "Calafell",
       "fechaAlta": "2025-10-14",
       "historico": true,
+      "tipo": "user",
       "lopd": true
     },
     {
@@ -421,6 +450,7 @@
       "provincia": "Pontevedra",
       "municipio": "Bueu",
       "fechaAlta": "2025-10-15",
+      "tipo": "user",
       "historico": false
     }
   ],
