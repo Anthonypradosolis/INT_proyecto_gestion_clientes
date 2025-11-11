@@ -1,11 +1,11 @@
 <template>
   <div class="container mx-auto mt-2 p-3 my-1 border rounded-0 shadow-sm bg-light">
-    <h3 class="text-center my-2">Gestión de Noticias</h3>
+    <h3 class="text-center my-2"><i class="bi bi-newspaper"> </i> Gestión de Noticias</h3>
 
     <form @submit.prevent="agregarNoticia" class="mb-4">
       <div class="mb-3 row align-items-center">
-        <div class="col-md-6 d-flex align-items-center">
-          <label for="titulo" class="form-label mb-0 w-25">Título:</label>
+        <div class="col-md-4 d-flex align-items-center">
+          <label for="titulo" class="form-label ms-3 mb-0 w-25">Título:</label>
           <input id="titulo" v-model="nuevo.titulo" type="text" maxlength="128" placeholder="Máximo 128 caracteres" class="form-control flex-grow-1" />
         </div>
         <div class="col-md-4 ms-auto d-flex align-items-center justify-content-end">
@@ -14,7 +14,7 @@
       </div>
 
       <div class="mb-3 row">
-        <div class="col-12 d-flex align-items-start">
+        <div class="d-flex align-items-start">
           <label for="contenido" class="form-label mb-0 me-3" style="width:80px;">Contenido:</label>
           <textarea id="contenido" v-model="nuevo.contenido" maxlength="1024" rows="4" class="form-control flex-grow-1" placeholder="Máximo 1024 caracteres"></textarea>
         </div>

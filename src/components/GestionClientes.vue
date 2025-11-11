@@ -2,7 +2,7 @@
   <div
     class="container mx-auto mt-2 p-3 my-1 border rounded-0 shadow-sm min-vh-75 bg-light"
   >
-    <h3 class="text-center my-2 gestion-header">Gestión de Clientes</h3>
+    <h3 class="text-center my-2 gestion-header"><i class="bi bi-people-fill"></i> Gestión de Clientes</h3>
     <!-- Formulario -->
     <form @submit.prevent="guardarCliente" class="mb-4">
       <!-- DNI con validación visual -->
