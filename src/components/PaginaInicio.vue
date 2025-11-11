@@ -5,14 +5,25 @@
             Tu navegador no soporta el video.
         </video>
         <div class="content">
-            <h1 class="bienvenida-titulo">Bienvenido a CarTeis</h1>
-            <!-- Aquí puedes añadir más contenido, botones, etc. -->
+            <transition name="fade">
+                <h1 v-if="showHeader" class="bienvenida-titulo">Bienvenido a CarTeis</h1>
+            </transition>
         </div>
     </div>
 </template>
 <script setup>
+import { ref, onMounted } from "vue";
 
+// Controla la visibilidad del título de bienvenida
+const showHeader = ref(true);
+// Tiempo en ms antes de ocultar el h1 (ajústalo si quieres)
+const HIDE_DELAY = 3000;
 
+onMounted(() => {
+    setTimeout(() => {
+        showHeader.value = false;
+    }, HIDE_DELAY);
+});
 
 </script>
 <style scoped>
@@ -83,6 +94,22 @@ body, html {
 body, html {
     overflow: hidden;
 }
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+}
+.fade-enter-to,
+.fade-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
 </style>
 
 <!-- Apuntes de noticias.json
