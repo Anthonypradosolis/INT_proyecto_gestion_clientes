@@ -362,7 +362,7 @@
       "provincia": "Pontevedra",
       "municipio": "Vigo",
       "fechaAlta": "2025-02-10",
-      "historico": false,
+      "historico": true,
       "tipo": "user",
       "email": "asdf@asdf.ok"
     },

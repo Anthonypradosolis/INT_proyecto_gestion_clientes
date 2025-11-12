@@ -271,6 +271,9 @@
               <button
                 @click="eliminarCliente(cliente.movil)"
                 class="btn btn-danger btn-sm border-0 ms-4 me-2 shadow-none rounded-0"
+                title="Eliminar cliente"
+                aria-label="Eliminar cliente"
+                :disabled="!cliente.historico" :aria-disabled="String(cliente.historico)"
               >
                 <i class="bi bi-trash"></i>
               </button>
