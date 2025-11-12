@@ -6,6 +6,8 @@ import NotiCias from '../components/NotiCias.vue'
 import AvisoLegal from "../components/AvisoLegal.vue";
 import PoliticaPrivacidad from "../components/PoliticaPrivacidad.vue";
 import ModeLos from "../components/ModeLos.vue";
+import PediDos from "../components/PediDos.vue";
+import ListaModelos from "../components/ListaModelos.vue";
 
 const routes = [
     {
@@ -37,6 +39,16 @@ const routes = [
         path: '/modelos',
         name: 'ModeLos',
         component: ModeLos,
+    },
+    {
+        path: '/pedidos',
+        name: 'PediDos',
+        component: PediDos,
+    },
+    {
+        path: '/listamodelos',
+        name: 'ListaModelos',
+        component: ListaModelos,
     },
     {
         path: '/:pathMatch(.*)*',

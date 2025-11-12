@@ -82,8 +82,6 @@ const editingId = ref(null)
 // Control de expansión por id
 const isExpanded = reactive({})
 
-// Use json-server serving src/data/db.json on port 3000
-// Start it with: npm run json-server
 const loadNoticias = async () => {
   try {
     noticias.value = await getNoticias()
