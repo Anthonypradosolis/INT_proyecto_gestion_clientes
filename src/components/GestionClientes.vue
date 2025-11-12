@@ -19,6 +19,7 @@
               class="form-control w-auto w-25 text-center ms-0"
               :class="{ 'is-invalid': !dniValido }"
               required
+              :disabled="editando"
               oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
               oninput="this.setCustomValidity('')"
             />
@@ -852,6 +853,14 @@ const limpiarCampos = () => {
     lopd: false,
     tipoCliente: "",
   };
+    //Salimos del modo edición → el DNI vuelve a ser editable
+  editando.value = false;
+  clienteEditandoId.value = null;
+
+  // Opcional: limpiar validaciones visuales
+  dniValido.value = true;
+  emailValido.value = true;
+  movilValido.value = true;
 };
 
 
