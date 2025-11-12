@@ -345,7 +345,7 @@
       "movil": "654789465",
       "direccion": "Avda. De Galicia, 101",
       "provincia": "Cuenca",
-      "municipio": "Alconchel de la Estrella",
+      "municipio": "Acebrón, El",
       "fechaAlta": "2025-10-02",
       "historico": true,
       "email": "sonia@gmail.com",
@@ -472,6 +472,131 @@
       "titulo": "La UE dando palos de ciego en el mundo del motor",
       "contenido": "A pesar del firme respaldo de países como España y Francia a la meta de 2035 para prohibir la venta de coches nuevos con motores de combustión interna en la Unión Europea, Alemania ha impulsado una revisión de esta normativa ante la presión de los fabricantes de automóviles. Esta directiva forma parte del Pact Verde Europeo y pretende acelerar el fin de los combustibles fósiles en el transporte.",
       "fecha": "24/10/2025"
+    }
+  ],
+  "pedidos": [
+    {
+      "id": "p101",
+      "cliente": "Panadería DoVo",
+      "modelo": "Cartel Promocional A3",
+      "cantidad": 50,
+      "entrega": "2025-11-20",
+      "estado": "Pendiente",
+      "tamano": "A3",
+      "precio": 75,
+      "observaciones": "Campaña de invierno. Se necesitan antes del 25 de noviembre."
+    },
+    {
+      "id": "p102",
+      "cliente": "Gráficas Centro",
+      "modelo": "Cartel de Evento A2",
+      "cantidad": 20,
+      "entrega": "2025-11-18",
+      "estado": "En producción",
+      "tamano": "A2",
+      "precio": 140.5,
+      "observaciones": "Evento del 20 de noviembre. Papel satinado 180g."
+    },
+    {
+      "id": "p103",
+      "cliente": "Autoescuela Rayo",
+      "modelo": "Cartel Seguridad Vial",
+      "cantidad": 10,
+      "entrega": "2025-11-25",
+      "estado": "Listo",
+      "tamano": "A3",
+      "precio": 60,
+      "observaciones": "Impresión a color, plastificado brillante."
+    },
+    {
+      "id": "p104",
+      "cliente": "Ayuntamiento de Córdoba",
+      "modelo": "Cartel Cultural A1",
+      "cantidad": 30,
+      "entrega": "2025-12-01",
+      "estado": "En producción",
+      "tamano": "A1",
+      "precio": 220,
+      "observaciones": "Feria del Libro 2025. Enviar 10 unidades adicionales al área de Cultura."
+    },
+    {
+      "id": "p105",
+      "cliente": "Bar El Molino",
+      "modelo": "Cartel de Promoción de Tapas",
+      "cantidad": 15,
+      "entrega": "2025-11-10",
+      "estado": "Pendiente",
+      "tamano": "A3",
+      "precio": 48,
+      "observaciones": "Diseño aprobado. Entregado el 9 de noviembre."
+    },
+    {
+      "id": "p106",
+      "cliente": "Tienda EcoVida",
+      "modelo": "Cartel Productos Orgánicos",
+      "cantidad": 25,
+      "entrega": "2025-11-27",
+      "estado": "Cancelado",
+      "tamano": "A2",
+      "precio": 95,
+      "observaciones": "Pedido cancelado por cambio de campaña publicitaria."
+    },
+    {
+      "id": "p107",
+      "cliente": "Academia Logos",
+      "modelo": "Cartel Clases de Inglés",
+      "cantidad": 40,
+      "entrega": "2025-12-05",
+      "estado": "Pendiente",
+      "tamano": "A3",
+      "precio": 120,
+      "observaciones": "Entregar en dos tandas. Primera antes del 30 de noviembre."
+    }
+  ],
+  "modelos": [
+    {
+      "id": "1",
+      "nombre": "Sonia",
+      "matricula": "1234ACV",
+      "tipo": "Deportivo",
+      "dueno": "Sergio",
+      "marca": "Ford",
+      "combustible": "Gasolina",
+      "roto": false,
+      "itv": true
+    },
+    {
+      "id": "2",
+      "nombre": "Frokas",
+      "matricula": "6967PUT",
+      "tipo": "Turismo",
+      "dueno": "Raquel",
+      "marca": "Ford",
+      "combustible": "Eléctrico",
+      "roto": false,
+      "itv": false
+    },
+    {
+      "id": "3",
+      "nombre": "Bola Ocho",
+      "matricula": "3423PUT",
+      "tipo": "Deportivo",
+      "dueno": "Pedro",
+      "marca": "Citroën",
+      "combustible": "Gasolina",
+      "roto": false,
+      "itv": true
+    },
+    {
+      "id": "4",
+      "nombre": "Cuñao",
+      "matricula": "3421GAY",
+      "tipo": "Todoterreno",
+      "dueno": "David",
+      "marca": "Toyota",
+      "combustible": "Gasolina",
+      "roto": false,
+      "itv": false
     }
   ]
 }
