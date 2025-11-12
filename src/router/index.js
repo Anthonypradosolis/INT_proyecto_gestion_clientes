@@ -5,6 +5,7 @@ import PaginaInicio from "../components/PaginaInicio.vue";
 import NotiCias from '../components/NotiCias.vue'
 import AvisoLegal from "../components/AvisoLegal.vue";
 import PoliticaPrivacidad from "../components/PoliticaPrivacidad.vue";
+import ModeLos from "../components/ModeLos.vue";
 
 const routes = [
     {
@@ -31,6 +32,11 @@ const routes = [
         path:'/politicaprivacidad',
         name:'PoliticaPrivacidad',
         component: PoliticaPrivacidad,
+    },
+    {
+        path: '/modelos',
+        name: 'ModeLos',
+        component: ModeLos,
     },
     {
         path: '/:pathMatch(.*)*',
