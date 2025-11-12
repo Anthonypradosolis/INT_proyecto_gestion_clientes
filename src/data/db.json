@@ -598,5 +598,28 @@
       "roto": false,
       "itv": false
     }
+  ],
+  "contactos": [
+    {
+      "id": "1",
+      "nombre": "Juan Pérez",
+      "email": "juanperez@example.com",
+      "telefono": "654321987",
+      "mensaje": "Hola, me gustaría recibir más información sobre vuestros modelos de coches."
+    },
+    {
+      "id": "2",
+      "nombre": "María López",
+      "email": "maria.lopez@example.com",
+      "telefono": "612345678",
+      "mensaje": "Estoy interesada en una colaboración para publicidad."
+    },
+    {
+      "id": "3",
+      "nombre": "Carlos Ruiz",
+      "email": "cruiz@example.com",
+      "telefono": "677112233",
+      "mensaje": "He tenido un problema con un pedido anterior, necesito asistencia técnica."
+    }
   ]
 }

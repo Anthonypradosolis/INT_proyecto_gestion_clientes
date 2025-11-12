@@ -8,6 +8,7 @@ import PoliticaPrivacidad from "../components/PoliticaPrivacidad.vue";
 import ModeLos from "../components/ModeLos.vue";
 import PediDos from "../components/PediDos.vue";
 import ListaModelos from "../components/ListaModelos.vue";
+import ConTacto from "../components/ConTacto.vue";
 
 const routes = [
     {
@@ -50,6 +51,11 @@ const routes = [
         name: 'ListaModelos',
         component: ListaModelos,
     },
+    {
+        path: '/contacto',
+        name: 'ConTacto',
+        component: ConTacto,
+    },        
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
