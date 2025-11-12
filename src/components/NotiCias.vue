@@ -21,10 +21,9 @@
       </div>
 
       <div class="mb-3 d-flex justify-content-center">
-        <button type="submit" class="btn btn-success me-2">
-          <i class="bi bi-plus-lg"></i> {{ editingId ? 'Guardar' : 'Añadir' }}
+        <button type="submit" class="btn btn-outline-primary me-2">
+          <i class="bi bi-plus-lg"></i> Publicar
         </button>
-        <button type="button" @click="limpiarFormulario" class="btn btn-outline-secondary">Limpiar</button>
       </div>
     </form>
 
@@ -55,9 +54,6 @@
             <td class="align-middle text-center">
               <button @click="eliminarNoticia(noticia.id)" class="btn btn-danger btn-sm me-2" title="Eliminar Noticia">
                 <i class="bi bi-trash"></i>
-              </button>
-              <button @click="editarNoticia(noticia.id)" class="btn btn-warning btn-sm" title="Editar Noticia">
-                <i class="bi bi-pencil"></i>
               </button>
             </td>
           </tr>

@@ -59,7 +59,7 @@
         </div>
         <!-- Columna Fecha de Alta a la derecha -->
         <div
-          class="col-md-4 ms-auto d-flex align-items-center justify-content-end"
+          class="col-md-3 d-flex align-items-center justify-content-end"
         >
           <label for="fechaAlta" class="form-label me-2 mb-0 text-nowrap"
             >Fecha de Alta:</label
@@ -68,8 +68,16 @@
             type="date"
             id="fechaAlta"
             v-model="nuevoCliente.fechaAlta"
-            class="form-control w-auto"
+            class="form-control w-auto me-5"
           />
+             <button
+            type="button"
+            class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center"
+            @click="limpiarCampos"
+            title="Reiniciar campos"
+          >
+            <i class="bi bi-arrow-clockwise fs-5"></i>
+          </button>
         </div>
       </div>
 
@@ -253,7 +261,7 @@
         </thead>
         <tbody>
           <tr v-for="(cliente, index) in clientesPaginados" :key="index">
-            <th scope="row" class="text-center">{{ index + 1 }}</th>
+            <th scope="row" class="text-center">{{(currentPage - 1) * clientesPorPage + index + 1 }}</th>
             <td>{{ cliente.apellidos }}</td>
             <td>{{ cliente.nombre }}</td>
             <td class="text-center">{{ cliente.movil }}</td>
@@ -323,6 +331,7 @@ import AvisoLegal from "./AvisoLegal.vue";
 
 // SCRIPTS CRUD //
 
+// Objeto reactivo que almacena los datos del cliente actual en el formulario
 const nuevoCliente = ref({
   dni: "",
   nombre: "",
@@ -339,20 +348,22 @@ const nuevoCliente = ref({
 
 // Funcion lisar clientes con get
 
-const editando = ref(false); // Estado de edición
+const editando = ref(false); // Modo edición activado o no
 const clienteEditandoId = ref(null); // ID del cliente que se está editando
 const mostrarHistorico = ref(false);
 // Controla si el usuario ha aceptado el Aviso Legal. Hasta que no sea true,
 // la mayoría de campos y acciones estarán deshabilitados.
-const avisoLegal = ref(false);
-const clientes = ref([]);
+const avisoLegal = ref(false);  // Si el aviso legal ha sido aceptado
+const clientes = ref([]); // Array que almacena todos los clientes
 
+// Variables para paginación
 const numClientes = ref(0);
 const currentPage = ref(1);
 const clientesPorPage = 10; // por defecto seria ref(10) y asi con 20 y 30 que sea un boton de checkbox
 // Cargar clientes al montar el componente
 
 // Zona Cargar clientes Al Montar el componente
+// Al montar el componente, se cargan los clientes y se reinicia la página actual.
 onMounted(async () => {
   cargarClientes();
   currentPage.value = 1;
@@ -381,6 +392,8 @@ const nextPagina = () => {
 // slice extrae una sección del array clientes
 // start es el índice inicial y end el índice final (no incluido)
 
+// Propiedad computada: obtiene los clientes visibles en la página actual
+// computed → se actualiza automáticamente si cambia currentPage o clientes
 const clientesPaginados = computed(() => {
   const start = (currentPage.value - 1) * clientesPorPage;
   const end = start + clientesPorPage;
@@ -388,9 +401,10 @@ const clientesPaginados = computed(() => {
 });
 
 const cargarClientes = () => {
+  // llama a la API
   getClientes(mostrarHistorico.value).then((data) => {
     clientes.value = data;
-    numClientes.value = data.length; // ✅ actualizar total de clientes
+    numClientes.value = data.length; // actualizar total de clientes
   });
   Swal.fire({
     icon: "success",
@@ -413,6 +427,7 @@ const guardarCliente = async () => {
   }
   // Validar duplicados solo si estás creando (no si editando)
 
+  // Evita duplicados si estamos creando un nuevo cliente
   if (!editando.value) {
     const duplicado = clientes.value.find(
       (cliente) =>
@@ -431,7 +446,7 @@ const guardarCliente = async () => {
     }
   }
 
-  // Confirmación antes de guardar
+  // Confirmación visual antes de guardar o modificar
   const result = await Swal.fire({
     title: editando.value
       ? "¿Desea modificar este cliente?"
@@ -445,19 +460,20 @@ const guardarCliente = async () => {
   if (!result.isConfirmed) return;
   //  cliente.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
   try {
+    // modo edicion
     if (editando.value) {
       // Validar campos
       // Modificar cliente (PUT)+
 
       // Asegurarnos de guardar el estado de aceptación LOPD según el checkbox
       nuevoCliente.value.lopd = avisoLegal.value;
-
+      // Actualiza el cliente en la API
       const clienteActualizado = await updateCliente(
         clienteEditandoId.value,
         nuevoCliente.value
       );
 
-      // Actualiza el cliente en la lista local
+      // Reemplaza el cliente modificado en la lista local
       const index = clientes.value.findIndex(
         (c) => c.id === clienteEditandoId.value
       );
@@ -484,7 +500,7 @@ const guardarCliente = async () => {
       });
     }
 
-    // Reset formulario y estado
+    // Limpieza Reset formulario y estado
     nuevoCliente.value = {
       dni: "",
       nombre: "",
@@ -588,6 +604,7 @@ const eliminarCliente = async (movil) => {
 
   clientes.value = await getClientes();
   // Buscar cliente completo (que incluye el ID)
+  // Busca el cliente por movil
   const clienteAEliminar = clientes.value.find(
     (cliente) => cliente.movil === movil
   );
@@ -615,6 +632,7 @@ const eliminarCliente = async (movil) => {
   if (!result.isConfirmed) return;
 
   // Si confirma, eliminar cliente usando la API y movil como ID
+  // En lugar de borrar, marcamos el histórico como false (eliminado)
   await deleteCliente(clienteAEliminar.id);
   // Refrescar la lista desde la "API"
   clientes.value = await getClientes();
@@ -640,7 +658,7 @@ const editarCliente = (movil) => {
     return;
   }
 
-  // Copiar datos al formulario
+  // Cargar datos al formulario
   nuevoCliente.value = { ...cliente }; // 🔁 Aquí cargas el formulario con los datos
   editando.value = true;
   // Formatear fecha para el input type="date"
@@ -678,7 +696,7 @@ const buscarClientePorDNI = async (dni) => {
       return;
     }
 
-    // ✅ Cargar los datos en el formulario
+    // Cargar los datos encontrados en el formulario
     nuevoCliente.value = { ...cliente };
     nuevoCliente.value.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
 
@@ -732,6 +750,7 @@ const validarDniNie = (valor) => {
 };
 
 // Función única: capitaliza y asigna en el mismo paso
+// Convierte texto a formato capitalizado (Primera letra en mayúscula)
 const capitalizarTexto = (campo) => {
   const texto = nuevoCliente.value[campo] ?? "";
   nuevoCliente.value[campo] = texto
@@ -746,6 +765,7 @@ const capitalizarTexto = (campo) => {
 
 // control email
 
+// Validaciones básicas de email y móvil
 const emailValido = ref(true);
 const validarEmail = () => {
   const email = nuevoCliente.value.email.trim();
@@ -755,7 +775,7 @@ const validarEmail = () => {
 };
 
 // Provincias y municipios
-
+// Filtrado de municipios según la provincia seleccionada
 const provincias = ref(provmuniData.provincias); // Array de provincias
 const municipios = ref(provmuniData.municipios); // Array de municipios para filtrarlos
 const municipiosFiltrados = ref([]); // vacío pero contendrá los municipios filtrados
@@ -798,6 +818,7 @@ const validarMovil = () => {
 };
 
 // conversor fecha
+// Conversor de fechas (de dd/mm/yyyy a yyyy-mm-dd)
 function formatearFechaParaInput(fecha) {
   if (!fecha) return "";
 
@@ -814,6 +835,26 @@ function formatearFechaParaInput(fecha) {
   }
   return "";
 }
+
+// Limpia todos los campos del formulario
+const limpiarCampos = () => {
+  nuevoCliente.value = {
+    dni: "",
+    nombre: "",
+    apellidos: "",
+    email: "",
+    movil: "",
+    direccion: "",
+    provincia: "",
+    municipio: "",
+    fecha_alta: "",
+    historico: true,
+    lopd: false,
+    tipoCliente: "",
+  };
+};
+
+
 </script>
 
 <style scoped>

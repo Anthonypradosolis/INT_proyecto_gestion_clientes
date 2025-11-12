@@ -141,7 +141,8 @@
           <input
             type="checkbox"
             v-model="nuevoModelo.itv"
-            class="form-check-input"
+            class="form-check-input" 
+            required
         /></label>
       </div>
       <!-- Botón de acción: Añadir o Modificar -->
