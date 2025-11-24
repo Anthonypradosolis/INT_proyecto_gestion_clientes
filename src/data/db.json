@@ -349,7 +349,8 @@
       "fechaAlta": "2025-10-02",
       "historico": true,
       "email": "sonia@gmail.com",
-      "lopd": true
+      "lopd": true,
+      "tipoCliente": "on"
     },
     {
       "id": "9afd",
@@ -452,6 +453,38 @@
       "fechaAlta": "2025-10-15",
       "tipo": "user",
       "historico": false
+    },
+    {
+      "id": "1faf",
+      "dni": "12345678F",
+      "nombre": "Voctor",
+      "apellidos": "Sanchez Güiraldes ",
+      "email": "voctorsanchezg@gmail.com",
+      "movil": "678987895",
+      "direccion": "Redondela",
+      "provincia": "Albacete",
+      "municipio": "Alborea",
+      "fechaAlta": "",
+      "historico": false,
+      "lopd": true,
+      "password": "12345",
+      "passwordConfirm": "12345"
+    },
+    {
+      "id": "5357",
+      "dni": "45974864A",
+      "nombre": "Loquete",
+      "apellidos": "Loquete",
+      "email": "loquete@gmail.com",
+      "movil": "634234567",
+      "direccion": "Avda. De Galicia, 101",
+      "provincia": "Álava",
+      "municipio": "Aramaio",
+      "fechaAlta": "2025-10-31",
+      "historico": false,
+      "lopd": true,
+      "password": "12345",
+      "passwordConfirm": "12345"
     }
   ],
   "noticias": [

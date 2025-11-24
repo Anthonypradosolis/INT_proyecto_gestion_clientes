@@ -9,6 +9,8 @@ import ModeLos from "../components/ModeLos.vue";
 import PediDos from "../components/PediDos.vue";
 import ListaModelos from "../components/ListaModelos.vue";
 import ConTacto from "../components/ConTacto.vue";
+import CitasTaller from "../components/CitasTaller.vue";
+import TablaLogin from "../components/TablaLogin.vue";
 
 const routes = [
     {
@@ -55,6 +57,16 @@ const routes = [
         path: '/contacto',
         name: 'ConTacto',
         component: ConTacto,
+    },        
+    {
+        path: '/taller',
+        name: 'Taller',
+        component: CitasTaller,
+    },
+    {
+        path: '/login',
+        name: 'TablaLogin',
+        component: TablaLogin,
     },        
     {
         path: '/:pathMatch(.*)*',

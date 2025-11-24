@@ -1,33 +1,51 @@
-import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+// a diferencia de json-server, aquí necesita configurar las rutas y controladores manualmente
+// json-server crea automáticamente las rutas basadas en el archivo JSON, mongoose requiere definir esquemas y modelos
+// MONGOSEE NO SABE NADA DE RUTAS CONTROLADRES Y MODELOS, HAY QUE CREARLOS MANUALMENTE
+
+import articulosRoutes from "./articulosRoutes.js"; // ruta al router backend
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000; // Use PORT from environment or default to 5000
 
-app.use(cors());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/uploads',express.static(path.join(__dirname,'uploads')));
+
+// Middleware
+app.use(cors()); //si no funciona lo siguiente
+// app.use(
+//     cors({
+//         origin: "http://localhost:5173",
+//         methods: ["GET", "POST", "PUT", "DELETE"],
+//     })
+// );
+
 app.use(express.json());
 
-// Soporte para dos nombres comunes de la variable de entorno:
-// - MONGODB_URI (usado por muchos ejemplos)
-// - MONGO_URI (tu .env actual usa este nombre)
-const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+// Rutas DE MONGOOSE, JSON SERVER NO ES NECESARIO LAS RUTAS LAS CREA AUTOMATICAMENTE
+// json-server es un backend ya construido.
+// Express es un backend que TÚ construyes.
+// Por eso json-server no requiere rutas y Express sí.
+app.use("/api/articulos", articulosRoutes);
 
-if (mongoUri && mongoUri.trim() !== '') {
-    console.log('Usando conexión MongoDB desde variable de entorno.');
-    mongoose
-        .connect(mongoUri, {
-        })
-        .then(() => console.log('Connected to MongoDB'))
-        .catch((error) => console.log('Could not connect to MongoDB: ', error));
-} else {
-    console.log('No se encontró MONGODB_URI ni MONGO_URI. Se omite la conexión a MongoDB. Si quieres usar MongoDB, añade MONGO_URI o MONGODB_URI en un archivo .env o en las variables de entorno.');
-}
+// Verificar variable
+//console.log("MONGODB_URI =", process.env.MONGODB_URI);
 
+/// Conexión a MongoDB
+mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => console.log("Connected to MongoDB a la base de datos BBDD"))
+    .catch((err) => console.error("Could not connect to MongoDB:", err));
 
-app.listen(PORT, ()=>{
-    console.log(`Server Express esta corriendo running on port: ${PORT}`);
-})
-
+//Iniciar el servidor Express en el puerto especificado
+app.listen(PORT, () => {
+    console.log(`Server Express está corriendo en el puerto: ${PORT}`);
+});

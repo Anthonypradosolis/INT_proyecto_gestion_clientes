@@ -2,7 +2,9 @@
   <div
     class="container mx-auto mt-2 p-3 my-1 border rounded-0 shadow-sm min-vh-75 bg-light"
   >
-    <h3 class="text-center my-2 gestion-header"><i class="bi bi-people-fill"></i> Gestión de Clientes</h3>
+    <h3 class="text-center my-2 gestion-header">
+      <i class="bi bi-people-fill"></i> Gestión de Clientes
+    </h3>
     <!-- Formulario -->
     <form @submit.prevent="guardarCliente" class="mb-4">
       <!-- DNI con validación visual -->
@@ -59,9 +61,7 @@
           </div>
         </div>
         <!-- Columna Fecha de Alta a la derecha -->
-        <div
-          class="col-md-3 d-flex align-items-center justify-content-end"
-        >
+        <div class="col-md-3 d-flex align-items-center justify-content-end">
           <label for="fechaAlta" class="form-label me-2 mb-0 text-nowrap"
             >Fecha de Alta:</label
           >
@@ -71,7 +71,7 @@
             v-model="nuevoCliente.fechaAlta"
             class="form-control w-auto me-5"
           />
-             <button
+          <button
             type="button"
             class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center"
             @click="limpiarCampos"
@@ -206,6 +206,51 @@
       </div>
 
       <!-- Aviso Legal -->
+      <!-- Contraseña y Repetir contraseña -->
+      <div class="mb-3 row g-3 align-items-center">
+        <div class="col-md-5 d-flex align-items-center">
+          <label for="password" class="form-label mb-0 text-nowrap w-25"
+            >Contraseña:</label
+          >
+          <input
+            type="password"
+            id="password"
+            v-model="nuevoCliente.password"
+            class="form-control flex-grow-1"
+            required
+          />
+        </div>
+
+        <div class="col-md-5 d-flex align-items-center ms-5">
+          <label for="passwordConfirm" class="form-label me-4 mb-0 text-nowrap"
+            >Repetir contraseña:</label
+          >
+          <input
+            type="password"
+            id="passwordConfirm"
+            v-model="nuevoCliente.passwordConfirm"
+            class="form-control flex-grow-1"
+            :class="{
+              'is-invalid':
+                !passwordMatch &&
+                (nuevoCliente.password !== '' ||
+                  nuevoCliente.passwordConfirm !== ''),
+            }"
+            required
+          />
+          <div
+            v-if="
+              !passwordMatch &&
+              (nuevoCliente.password !== '' ||
+                nuevoCliente.passwordConfirm !== '')
+            "
+            class="invalid-feedback ms-3"
+          >
+            Las contraseñas no coinciden.
+          </div>
+        </div>
+      </div>
+
       <div class="text-center">
         <input
           type="checkbox"
@@ -262,7 +307,9 @@
         </thead>
         <tbody>
           <tr v-for="(cliente, index) in clientesPaginados" :key="index">
-            <th scope="row" class="text-center">{{(currentPage - 1) * clientesPorPage + index + 1 }}</th>
+            <th scope="row" class="text-center">
+              {{ (currentPage - 1) * clientesPorPage + index + 1 }}
+            </th>
             <td>{{ cliente.apellidos }}</td>
             <td>{{ cliente.nombre }}</td>
             <td class="text-center">{{ cliente.movil }}</td>
@@ -273,7 +320,8 @@
                 class="btn btn-danger btn-sm border-0 ms-4 me-2 shadow-none rounded-0"
                 title="Eliminar cliente"
                 aria-label="Eliminar cliente"
-                :disabled="!cliente.historico" :aria-disabled="String(cliente.historico)"
+                :disabled="!cliente.historico"
+                :aria-disabled="String(cliente.historico)"
               >
                 <i class="bi bi-trash"></i>
               </button>
@@ -348,6 +396,8 @@ const nuevoCliente = ref({
   fechaAlta: "",
   historico: false, // luego lo cambiamos a true
   lopd: false, // aceptación del aviso legal (L.O.P.D.)
+  password: "",
+  passwordConfirm: "",
 });
 
 // Funcion lisar clientes con get
@@ -357,7 +407,7 @@ const clienteEditandoId = ref(null); // ID del cliente que se está editando
 const mostrarHistorico = ref(false);
 // Controla si el usuario ha aceptado el Aviso Legal. Hasta que no sea true,
 // la mayoría de campos y acciones estarán deshabilitados.
-const avisoLegal = ref(false);  // Si el aviso legal ha sido aceptado
+const avisoLegal = ref(false); // Si el aviso legal ha sido aceptado
 const clientes = ref([]); // Array que almacena todos los clientes
 
 // Variables para paginación
@@ -424,6 +474,17 @@ const guardarCliente = async () => {
     Swal.fire({
       icon: "warning",
       title: "Debes aceptar el Aviso Legal antes de guardar",
+      showConfirmButton: false,
+      timer: 2000,
+    });
+    return;
+  }
+
+  // Comprobación de contraseñas: deben coincidir
+  if (nuevoCliente.value.password !== nuevoCliente.value.passwordConfirm) {
+    Swal.fire({
+      icon: "error",
+      title: "Las contraseñas no coinciden",
       showConfirmButton: false,
       timer: 2000,
     });
@@ -517,6 +578,8 @@ const guardarCliente = async () => {
       fechaAlta: "",
       historico: true,
       lopd: false,
+      password: "",
+      passwordConfirm: "",
     };
     editando.value = true;
     clienteEditandoId.value = null;
@@ -734,21 +797,22 @@ const dniValido = ref(true); // Por defecto es válido y no muestra error al ini
 
 // Función para validar DNI y NIE
 const validarDniNie = (valor) => {
+  // Defensa: asegurar que valor es una cadena
+  if (valor === undefined || valor === null) return false;
+  const str = String(valor).toUpperCase();
   const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
   const dniRegex = /^[0-9]{8}[A-Z]$/;
   const nieRegex = /^[XYZ][0-9]{7}[A-Z]$/;
 
-  valor = valor.toUpperCase();
-
-  if (dniRegex.test(valor)) {
-    const numero = parseInt(valor.slice(0, 8), 10);
-    const letra = valor.charAt(8);
-    return letra === letras[numero % 23]; //sale con true si es válido
-  } else if (nieRegex.test(valor)) {
-    const nie = valor.replace("X", "0").replace("Y", "1").replace("Z", "2");
+  if (dniRegex.test(str)) {
+    const numero = parseInt(str.slice(0, 8), 10);
+    const letra = str.charAt(8);
+    return letra === letras[numero % 23]; // true si es válido
+  } else if (nieRegex.test(str)) {
+    const nie = str.replace("X", "0").replace("Y", "1").replace("Z", "2");
     const numero = parseInt(nie.slice(0, 8), 10);
-    const letra = valor.charAt(8);
-    return letra === letras[numero % 23]; //sale con true si es válido
+    const letra = str.charAt(8);
+    return letra === letras[numero % 23]; // true si es válido
   }
   return false;
 };
@@ -777,6 +841,14 @@ const validarEmail = () => {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   emailValido.value = regex.test(email);
 };
+
+// Comprueba si las contraseñas coinciden
+const passwordMatch = computed(() => {
+  return (
+    (nuevoCliente.value.password || "") ===
+    (nuevoCliente.value.passwordConfirm || "")
+  );
+});
 
 // Provincias y municipios
 // Filtrado de municipios según la provincia seleccionada
@@ -810,8 +882,12 @@ const filtrarMunicipios = () => {
 const movilValido = ref(true);
 // Validar al salir del campo
 const validarDni = () => {
-  nuevoCliente.value.dni = nuevoCliente.value.dni.trim().toUpperCase();
-  dniValido.value = validarDniNie(dni);
+  // Asegurarse de que el campo existe y es cadena
+  nuevoCliente.value.dni = (nuevoCliente.value.dni || "")
+    .toString()
+    .trim()
+    .toUpperCase();
+  dniValido.value = validarDniNie(nuevoCliente.value.dni);
 };
 
 const validarMovil = () => {
@@ -856,7 +932,7 @@ const limpiarCampos = () => {
     lopd: false,
     tipoCliente: "",
   };
-    //Salimos del modo edición → el DNI vuelve a ser editable
+  //Salimos del modo edición → el DNI vuelve a ser editable
   editando.value = false;
   clienteEditandoId.value = null;
 
@@ -865,8 +941,6 @@ const limpiarCampos = () => {
   emailValido.value = true;
   movilValido.value = true;
 };
-
-
 </script>
 
 <style scoped>
