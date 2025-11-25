@@ -371,6 +371,7 @@
 <script setup>
 import provmuniData from "@/data/provmuni.json";
 import { ref, onMounted, computed } from "vue";
+import bcrypt from "bcryptjs";
 import {
   getClientes,
   deleteCliente,
@@ -469,6 +470,20 @@ const cargarClientes = () => {
 };
 
 const guardarCliente = async () => {
+  // Validar contraseñas
+  if (nuevoCliente.value.password !== passwordConfirm.value) {
+    Swal.fire({
+      icon: "error",
+      title: "Error en contraseña",
+      text: "Las contraseñas no coinciden.",
+      showConfirmButton: true,
+    });
+    return;
+  }
+
+  const salt = bcrypt.genSaltSync(10);
+  const hash = bcrypt.hashSync(nuevoCliente.value.password, salt);
+
   // Antes de guardar, el usuario debe haber aceptado el Aviso Legal
   if (!avisoLegal.value) {
     Swal.fire({
@@ -524,7 +539,9 @@ const guardarCliente = async () => {
 
   if (!result.isConfirmed) return;
   //  cliente.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
+
   try {
+    nuevoCliente.value.password = hash;
     // modo edicion
     if (editando.value) {
       // Validar campos
@@ -725,8 +742,11 @@ const editarCliente = (movil) => {
     return;
   }
 
-  // Cargar datos al formulario
+  // Cargar datos al formulario (sin contraseña por seguridad)
   nuevoCliente.value = { ...cliente }; // 🔁 Aquí cargas el formulario con los datos
+  // No mostrar la contraseña al editar
+  nuevoCliente.value.password = "";
+  nuevoCliente.value.passwordConfirm = "";
   editando.value = true;
   // Formatear fecha para el input type="date"
   nuevoCliente.value.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
@@ -763,8 +783,11 @@ const buscarClientePorDNI = async (dni) => {
       return;
     }
 
-    // Cargar los datos encontrados en el formulario
+    // Cargar los datos encontrados en el formulario (sin contraseña por seguridad)
     nuevoCliente.value = { ...cliente };
+    // No mostrar la contraseña al editar
+    nuevoCliente.value.password = "";
+    nuevoCliente.value.passwordConfirm = "";
     nuevoCliente.value.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
 
     // Actualiza lista de municipios si cambia la provincia

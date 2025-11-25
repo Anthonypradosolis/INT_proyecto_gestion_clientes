@@ -350,7 +350,9 @@
       "historico": true,
       "email": "sonia@gmail.com",
       "lopd": true,
-      "tipoCliente": "on"
+      "tipoCliente": "on",
+      "password": "$2b$10$hrL6vZDrb1dBndPadJueR.e2zk4fIKDgUqvhlK4F5HQlRgB7Om8Uy",
+      "passwordConfirm": "1234abc"
     },
     {
       "id": "9afd",
