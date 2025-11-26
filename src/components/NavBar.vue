@@ -79,11 +79,15 @@ import { ref, onMounted } from 'vue'
 
 // Estado do login
 const isLogueado = ref(false)
+const isAdmin = ref(false)
+const isUsuario = ref(false)
 const userName = ref('')
 
 // Cando o componente se monta, le localStorage (para cando montes a autenticación)
 onMounted(() => {
   isLogueado.value = localStorage.getItem('isLogueado') === 'true'
+  isAdmin.value = localStorage.getItem('isAdmin') === 'true'
+  isUsuario.value = localStorage.getItem('isUsuario') === 'true'
   userName.value = localStorage.getItem('userName') || ''
 })
 
@@ -94,7 +98,7 @@ function logout() {
   localStorage.removeItem('userName')
   localStorage.removeItem('isAdmin')
   localStorage.removeItem('isUsuario')
-
+  localStorage.removeItem('token')
   // Actualiza estado
   isLogueado.value = false
   userName.value = ''
