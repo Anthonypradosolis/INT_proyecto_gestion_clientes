@@ -50,6 +50,7 @@
         </ul>
                 <!-- Dropdown de acceso/registro -->
         <div class="dropdown ms-auto">
+          <span v-if="!isLogueado" class="navbar-text me-2 text-white">{{ userName }}</span>
           <button
             class="btn btn-primary dropdown-toggle"
             type="button"

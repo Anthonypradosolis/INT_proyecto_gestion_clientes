@@ -351,8 +351,8 @@
       "email": "sonia@gmail.com",
       "lopd": true,
       "tipoCliente": "on",
-      "password": "$2b$10$hrL6vZDrb1dBndPadJueR.e2zk4fIKDgUqvhlK4F5HQlRgB7Om8Uy",
-      "passwordConfirm": "1234abc"
+      "password": "$2b$10$w6UT1MrOKVCYyMwQUbAyvOqY2FZA/TNLsCLmSlcJfJObSOv11UwsG",
+      "passwordConfirm": "12345"
     },
     {
       "id": "9afd",
@@ -453,8 +453,11 @@
       "provincia": "Pontevedra",
       "municipio": "Bueu",
       "fechaAlta": "2025-10-15",
-      "tipo": "user",
-      "historico": false
+      "tipo": "admin",
+      "historico": false,
+      "password": "$2b$10$U2Tdgd0eNkiHUbTSYHH6IeggD0dXxMjD.YiV9mpCBXBrWMdlh5QJ2",
+      "passwordConfirm": "12345",
+      "lopd": true
     },
     {
       "id": "1faf",

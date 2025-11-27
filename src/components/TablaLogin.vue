@@ -1,17 +1,22 @@
-
-  <template>
-  <div class="d-flex flex-column justify-content-center align-items-center vh-75 mt-5">
+<template>
+  <div
+    class="d-flex flex-column justify-content-center align-items-center vh-75 mt-5"
+  >
     <!-- Título -->
     <div class="text-center mb-4">
-      <h5 class="fw-bold text-uppercase text-primary position-relative d-inline-block">
-        <i class="bi bi-people-fill me-2 fs-3"></i> <!-- Icono decorativo con tamaño -->
+      <h5
+        class="fw-bold text-uppercase text-primary position-relative d-inline-block"
+      >
+        <i class="bi bi-people-fill me-2 fs-3"></i>
+        <!-- Icono decorativo con tamaño -->
         Iniciar sesión
-        <span class="underline-effect"></span> <!-- Línea decorativa -->
+        <span class="underline-effect"></span>
+        <!-- Línea decorativa -->
       </h5>
     </div>
 
     <!-- Formulario -->
-    <div class="border p-4 shadow-sm rounded w-100" style="max-width: 400px;">
+    <div class="border p-4 shadow-sm rounded w-100" style="max-width: 400px">
       <form @submit.prevent="iniciarSesion">
         <!-- Campo DNI -->
         <div class="mb-3">
@@ -39,7 +44,9 @@
 
         <!-- Botón de login -->
         <div class="text-center">
-          <button type="submit" class="btn btn-primary w-50">Iniciar sesión</button>
+          <button type="submit" class="btn btn-primary w-50">
+            Iniciar sesión
+          </button>
         </div>
       </form>
 
@@ -56,7 +63,7 @@
 // EN NINGÚN CASO DEBE USARSE ESTA IMPLEMENTACIÓN EN PRODUCCIÓN
 // PARA UNHA APLICACIÓN REAL, O LOGIN DEBE XESTIONARSE NO LADO DO SERVIDOR CON HTTPS Y JWT SEGURO
 
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import { loginUsuario } from "@/api/authApi.js";
 
 export default {
@@ -67,21 +74,21 @@ export default {
       pass: "",
     };
   },
-  
+
   methods: {
     async iniciarSesion() {
       try {
         const data = await loginUsuario(this.dni, this.pass);
 
         // Guardar token y datos del usuario en localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userName', data.nombre);
-        localStorage.setItem('isLogueado', 'true');
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userName", data.nombre);
+        localStorage.setItem("isLogueado", "true");
 
         if (data.tipo === "admin") {
-          localStorage.setItem('isAdmin', 'true');
+          localStorage.setItem("isAdmin", "true");
         } else {
-          localStorage.setItem('isUsuario', 'true');
+          localStorage.setItem("isUsuario", "true");
         }
 
         Swal.fire({
@@ -89,36 +96,36 @@ export default {
           text: `Hola ${data.nombre}`,
           icon: "success",
           showConfirmButton: false,
-          timer: 2000
+          timer: 2000,
         });
         // Redirigir a la página de inicio y recargar con $router
         // $router se usa para evitar problemas de historial en SPA
         // window.location.reload() recarga la página para reflejar el estado autenticado
-        this.$router.push({ name: 'Inicio' }).then(() => window.location.reload());
-
+        this.$router
+          .push({ name: "Inicio" })
+          .then(() => window.location.reload());
       } catch (error) {
         console.error("Error en iniciarSesion:", error);
         Swal.fire({
           title: "Error de autenticación",
           text: "Error usuario o contraseña. Verifica tus credenciales.",
           icon: "error",
-          confirmButtonText: "Aceptar"
+          confirmButtonText: "Aceptar",
         });
       }
     },
-        // Función única: capitaliza y asigna en el mismo paso
+    // Función única: capitaliza y asigna en el mismo paso
     capitalizarTexto() {
       this.dni = this.dni.toUpperCase().trim();
-    }
-  }
+    },
+  },
 };
 </script>
-  
-  <style>
-  /* Ajustes adicionales si Bootstrap no cubre todo */
-  .form-label {
-    background-color: transparent !important;
-    margin-bottom: 0.5rem;
-  }
-  </style>
-  
+
+<style>
+/* Ajustes adicionales si Bootstrap no cubre todo */
+.form-label {
+  background-color: transparent !important;
+  margin-bottom: 0.5rem;
+}
+</style>
