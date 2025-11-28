@@ -11,6 +11,7 @@ import ListaModelos from "../components/ListaModelos.vue";
 import ConTacto from "../components/ConTacto.vue";
 import CitasTaller from "../components/CitasTaller.vue";
 import TablaLogin from "../components/TablaLogin.vue";
+import VenTas from "../components/VenTas.vue";
 
 const routes = [
     {
@@ -67,6 +68,11 @@ const routes = [
         path: '/login',
         name: 'TablaLogin',
         component: TablaLogin,
+    },
+    {
+        path: '/ventas',
+        name: VenTas,
+        component: VenTas,
     },        
     {
         path: '/:pathMatch(.*)*',

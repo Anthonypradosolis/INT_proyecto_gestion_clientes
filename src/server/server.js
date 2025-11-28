@@ -12,6 +12,7 @@ import authRoutes from "./authRoutes.js";
 // MONGOSEE NO SABE NADA DE RUTAS CONTROLADRES Y MODELOS, HAY QUE CREARLOS MANUALMENTE
 
 import articulosRoutes from "./articulosRoutes.js"; // ruta al router backend
+import { soloAdmin, verificarToken } from "./authController.js";
 
 dotenv.config();
 const app = express();
@@ -42,6 +43,8 @@ app.use("/api/articulos", articulosRoutes);
 
 // Verificar variable
 //console.log("MONGODB_URI =", process.env.MONGODB_URI);
+
+app.use("/api/articulos",articulosRoutes, verificarToken,soloAdmin)
 
 /// Conexión a MongoDB
 mongoose

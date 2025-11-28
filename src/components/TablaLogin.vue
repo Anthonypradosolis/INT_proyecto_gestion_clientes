@@ -87,8 +87,12 @@ export default {
 
         if (data.tipo === "admin") {
           localStorage.setItem("isAdmin", "true");
+          // Asegurar que la bandera de usuario normal queda desactivada
+          localStorage.setItem("isUsuario", "false");
         } else {
           localStorage.setItem("isUsuario", "true");
+          // Asegurar que la bandera admin queda desactivada
+          localStorage.setItem("isAdmin", "false");
         }
 
         Swal.fire({
