@@ -407,7 +407,7 @@ const editando = ref(false); // Modo edición activado o no
 const clienteEditandoId = ref(null); // ID del cliente que se está editando
 const mostrarHistorico = ref(false);
 // Detectar si el usuario actual es admin (guardado en localStorage por el login)
-const isAdmin = ref(localStorage.getItem("isAdmin") === "true");
+const isAdmin = (localStorage.getItem("isAdmin") === "true");
 // Controla si el usuario ha aceptado el Aviso Legal. Hasta que no sea true,
 // la mayoría de campos y acciones estarán deshabilitados.
 const avisoLegal = ref(false); // Si el aviso legal ha sido aceptado
