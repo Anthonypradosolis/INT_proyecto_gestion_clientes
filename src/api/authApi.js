@@ -15,6 +15,24 @@ export const loginUsuario = async (dni, password) => {
   }
 };
 
+// Función que verifica si el usuario es admin mediante el token
+export const esAdmin = async () => {
+  try {
+    const token = sessionStorage.getItem('token');
+    if (!token) return { isAdmin: false };
+
+    const response = await axios.get("http://localhost:5000/api/auth/check-admin", {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data; // { isAdmin, tipo, dni }
+  } catch (error) {
+    console.error("Error en checkAdmin:", error);
+    return { isAdmin: false };
+  }
+}
+
 
 //////////// PORQUE ESTE FICHERO Y NO LLAMAR DIRECTAMENTE A authController.js desde el frontend?
 

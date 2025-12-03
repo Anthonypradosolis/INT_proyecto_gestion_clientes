@@ -26,7 +26,6 @@
             id="dni"
             class="form-control text-center"
             v-model="dni"
-            required
           />
         </div>
 
@@ -38,7 +37,6 @@
             id="pass"
             class="form-control"
             v-model="pass"
-            required
           />
         </div>
 
@@ -65,6 +63,7 @@
 
 import Swal from "sweetalert2";
 import { loginUsuario } from "@/api/authApi.js";
+import { jwtDecode } from "jwt-decode";
 
 export default {
   name: "TablaLogin",
@@ -72,18 +71,46 @@ export default {
     return {
       dni: "",
       pass: "",
+      dniError: "",
+      passError: "",
+      cargando: false,
     };
   },
 
   methods: {
     async iniciarSesion() {
       try {
+
+        this.dni = this.dni.trim().toUpperCase();
+        this.pass = this.pass.trim();
+        if(this.dni === "" || this.pass === "") {
+          Swal.fire({
+            title: "Campos incompletos",
+            text: "Por favor, completa todos los campos.",
+            icon: "warning",
+            confirmButtonText: "Aceptar",
+          });
+          return;
+        }
+
         const data = await loginUsuario(this.dni, this.pass);
 
-        // Guardar token y datos del usuario en localStorage
+        // Guardar token y datos del usuario en sessionStorage
         localStorage.setItem("token", data.token);
         localStorage.setItem("userName", data.nombre);
         localStorage.setItem("isLogueado", "true");
+
+        const decoded = jwtDecode(data.token);
+
+        if (decoded.tipo === "admin") {
+          sessionStorage.setItem("isAdmin", "true");
+          sessionStorage.setItem("userName", decoded.nombre);
+          sessionStorage.setItem("isUser", "false");
+        } else {
+          sessionStorage.setItem("isAdmin", "false");
+          sessionStorage.setItem("userName", decoded.nombre);
+          sessionStorage.setItem("isUser", "true");
+        }
 
         if (data.tipo === "admin") {
           localStorage.setItem("isAdmin", "true");

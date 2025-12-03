@@ -407,7 +407,7 @@ const editando = ref(false); // Modo edición activado o no
 const clienteEditandoId = ref(null); // ID del cliente que se está editando
 const mostrarHistorico = ref(false);
 // Detectar si el usuario actual es admin (guardado en localStorage por el login)
-const isAdmin = (localStorage.getItem("isAdmin") === "true");
+const isAdmin = localStorage.getItem("isAdmin") === "true";
 // Controla si el usuario ha aceptado el Aviso Legal. Hasta que no sea true,
 // la mayoría de campos y acciones estarán deshabilitados.
 const avisoLegal = ref(false); // Si el aviso legal ha sido aceptado
@@ -417,7 +417,6 @@ const clientes = ref([]); // Array que almacena todos los clientes
 const numClientes = ref(0);
 const currentPage = ref(1);
 const clientesPorPage = 10; // por defecto seria ref(10) y asi con 20 y 30 que sea un boton de checkbox
-
 
 // Cargar clientes al montar el componente
 
@@ -437,9 +436,8 @@ const beforePagina = () => {
 };
 
 const nextPagina = () => {
-  const totalPages = Math.ceil(numClientes.value / clientesPorPage);
   //redondear hacia arriba para mostrar la última página aunque no esté completa
-  if (currentPage.value < totalPages) {
+  if (currentPage.value < totalPages.value) {
     currentPage.value++;
   }
 };
@@ -459,13 +457,16 @@ const clientesPaginados = computed(() => {
   return clientes.value.slice(start, end);
 });
 
+const totalPages = computed(() => {
+  return Math.ceil(numClientes.value / clientesPorPage);
+});
+
 const cargarClientes = () => {
   // llama a la API
-  getClientes(mostrarHistorico.value)
-    .then((data) => {
-      clientes.value = data;
-      numClientes.value = data.length; // actualizar total de clientes
-    })
+  getClientes(mostrarHistorico.value).then((data) => {
+    clientes.value = data;
+    numClientes.value = data.length; // actualizar total de clientes
+  });
   Swal.fire({
     icon: "success",
     title: "Listando Clientes",
