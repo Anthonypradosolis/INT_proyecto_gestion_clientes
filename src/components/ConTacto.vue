@@ -1,40 +1,43 @@
 <template>
   <div class="container mx-auto mt-3 p-4 border rounded-3 shadow-sm bg-light">
     <h3 class="text-center gestion-header mb-4">
-      <i class="bi bi-envelope-paper"></i> Gestión de Contactos
+      <i class="bi bi-envelope-paper me-2"></i> Formulario de Contacto
     </h3>
 
     <!-- Formulario de contacto -->
-    <form @submit.prevent="guardarContacto" class="mb-4">
+    <form @submit.prevent="enviarMensaje" class="mb-4">
       <div class="row g-3">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="nombre" class="form-label">Nombre:</label>
           <input
             type="text"
             id="nombre"
-            v-model="nuevoContacto.nombre"
+            v-model="form.nombre"
             class="form-control"
             required
           />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label for="email" class="form-label">Email:</label>
           <input
             type="email"
             id="email"
-            v-model="nuevoContacto.email"
+            v-model="form.email"
             class="form-control"
             required
           />
         </div>
-        <div class="col-md-4">
-          <label for="telefono" class="form-label">Teléfono:</label>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-12">
+          <label for="asunto" class="form-label">Asunto:</label>
           <input
-            type="tel"
-            id="telefono"
-            v-model="nuevoContacto.telefono"
+            type="text"
+            id="asunto"
+            v-model="form.asunto"
             class="form-control"
-            placeholder="Ej: 666777888"
+            placeholder="Asunto del mensaje"
           />
         </div>
       </div>
@@ -44,161 +47,111 @@
           <label for="mensaje" class="form-label">Mensaje:</label>
           <textarea
             id="mensaje"
-            v-model="nuevoContacto.mensaje"
+            v-model="form.mensaje"
             class="form-control"
-            rows="3"
+            rows="5"
+            required
           ></textarea>
         </div>
       </div>
 
       <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary px-4">
-          {{ editando ? "Modificar" : "Guardar" }}
+        <button type="submit" class="btn btn-primary px-4" :disabled="enviando">
+          <span v-if="enviando">
+            <i class="bi bi-hourglass-split"></i> Enviando...
+          </span>
+          <span v-else> <i class="bi bi-send"></i> Enviar Mensaje </span>
         </button>
       </div>
     </form>
-
-    <!-- Tabla de contactos -->
-    <div class="table-responsive">
-      <h4 class="text-center">Listado de Contactos</h4>
-      <table class="table table-bordered table-hover table-striped align-middle">
-        <thead class="table-primary">
-          <tr>
-            <th>#</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Mensaje</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(contacto, index) in contactos" :key="contacto.id">
-            <td>{{ index + 1 }}</td>
-            <td>{{ contacto.nombre }}</td>
-            <td>{{ contacto.email }}</td>
-            <td>{{ contacto.telefono }}</td>
-            <td>{{ contacto.mensaje }}</td>
-            <td class="text-center">
-              <button
-                @click="editarContacto(contacto)"
-                class="btn btn-warning btn-sm me-2 border-0"
-              >
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button
-                @click="eliminarContacto(contacto.id)"
-                class="btn btn-danger btn-sm border-0"
-              >
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  </div>
+  <div class="row justify-content-center mt-5">
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white text-center py-3">
+          <h5 class="mb-0">
+            <i class="bi bi-geo-alt-fill me-2"></i>
+            Nuestra Ubicación
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2950.5865753883815!2d-8.692220923738883!3d42.25138037429632!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2f62e588cfce69%3A0x378485bfa6edd1be!2sAvenida%20de%20Galicia%2C%20101%2C%20Teis%2C%2036216%20Vigo%2C%20Pontevedra!5e0!3m2!1ses!2ses!4v1733847920000!5m2!1ses!2ses"
+            width="100%"
+            height="400"
+            style="border: 0"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Ubicación Avenida de Galicia, 101, Teis"
+          ></iframe>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { reactive, ref } from "vue";
+import axios from "axios";
 import Swal from "sweetalert2";
-import {
-  getContactos,
-  addContacto,
-  updateContacto,
-  deleteContacto,
-} from "@/api/contactos.js";
 
-// -----------------------------
-// Variables reactivas
-// -----------------------------
-const contactos = ref([]); // lista completa de contactos
-const nuevoContacto = ref({
+const form = reactive({
   nombre: "",
   email: "",
-  telefono: "",
+  asunto: "",
   mensaje: "",
 });
-const editando = ref(false);
-const contactoEditandoId = ref(null);
 
-// -----------------------------
-// Cargar contactos al montar
-// -----------------------------
-onMounted(async () => {
-  contactos.value = await getContactos();
-});
+const enviando = ref(false);
 
-// -----------------------------
-// Guardar contacto (nuevo o editar)
-// -----------------------------
-const guardarContacto = async () => {
+async function enviarMensaje() {
+  if (enviando.value) return;
+  enviando.value = true;
   try {
-    if (editando.value) {
-      await updateContacto(contactoEditandoId.value, nuevoContacto.value);
-      Swal.fire("Contacto modificado", "", "success");
+    const response = await axios.post(
+      "http://localhost:5000/api/contacto",
+      form
+    );
+
+    if (response.data.ok) {
+      Swal.fire({
+        icon: "success",
+        title: "Mensaje enviado correctamente",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      // Limpiar formulario
+      form.nombre = "";
+      form.email = "";
+      form.asunto = "";
+      form.mensaje = "";
     } else {
-      await addContacto(nuevoContacto.value);
-      Swal.fire("Contacto guardado", "", "success");
+      Swal.fire({
+        icon: "error",
+        title: "Error al enviar el mensaje",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
-
-    // Limpiar formulario
-    nuevoContacto.value = {
-      nombre: "",
-      email: "",
-      telefono: "",
-      mensaje: "",
-    };
-    editando.value = false;
-    contactoEditandoId.value = null;
-
-    // Recargar contactos
-    contactos.value = await getContactos();
   } catch (error) {
-    console.error("Error al guardar contacto:", error);
-    Swal.fire("Error", "No se pudo guardar el contacto", "error");
+    console.error("Error al enviar el mensaje:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al enviar el mensaje",
+      text: "Por favor, inténtalo de nuevo más tarde.",
+      showConfirmButton: true,
+    });
+  } finally {
+    enviando.value = false;
   }
-};
-
-// -----------------------------
-// Editar contacto existente
-// -----------------------------
-const editarContacto = (contacto) => {
-  nuevoContacto.value = { ...contacto };
-  contactoEditandoId.value = contacto.id;
-  editando.value = true;
-};
-
-// -----------------------------
-// Eliminar contacto
-// -----------------------------
-const eliminarContacto = async (id) => {
-  const confirmacion = await Swal.fire({
-    title: "¿Eliminar contacto?",
-    text: "Esta acción no se puede deshacer",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Eliminar",
-    cancelButtonText: "Cancelar",
-  });
-  if (!confirmacion.isConfirmed) return;
-
-  try {
-    await deleteContacto(id);
-    Swal.fire("Eliminado", "El contacto ha sido eliminado", "success");
-    contactos.value = await getContactos();
-  } catch (error) {
-    console.error("Error eliminando contacto:", error);
-    Swal.fire("Error", "No se pudo eliminar el contacto", "error");
-  }
-};
+}
 </script>
 
 <style scoped>
 .gestion-header {
-  background-color: #b5caff;
-  color: #03306b;
+  background-color: #0d6efd;
+  color: white;
   padding: 0.75rem;
   border-radius: 6px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
