@@ -406,8 +406,8 @@ const nuevoCliente = ref({
 const editando = ref(false); // Modo edición activado o no
 const clienteEditandoId = ref(null); // ID del cliente que se está editando
 const mostrarHistorico = ref(false);
-// Detectar si el usuario actual es admin (guardado en localStorage por el login)
-const isAdmin = localStorage.getItem("isAdmin") === "true";
+// Detectar si el usuario actual es admin (guardado en sessionStorage por el login)
+const isAdmin = ref(sessionStorage.getItem("isAdmin") === "true");
 // Controla si el usuario ha aceptado el Aviso Legal. Hasta que no sea true,
 // la mayoría de campos y acciones estarán deshabilitados.
 const avisoLegal = ref(false); // Si el aviso legal ha sido aceptado
@@ -423,6 +423,10 @@ const clientesPorPage = 10; // por defecto seria ref(10) y asi con 20 y 30 que s
 // Zona Cargar clientes Al Montar el componente
 // Al montar el componente, se cargan los clientes y se reinicia la página actual.
 onMounted(async () => {
+  // Leer estado de admin desde sessionStorage en el momento de montar (más robusto)
+  isAdmin.value = sessionStorage.getItem("isAdmin") === "true";
+  // Si es admin mostramos el histórico completo por defecto
+  if (isAdmin.value) mostrarHistorico.value = true;
   cargarClientes();
   currentPage.value = 1;
 });

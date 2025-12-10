@@ -96,9 +96,9 @@ export default {
         const data = await loginUsuario(this.dni, this.pass);
 
         // Guardar token y datos del usuario en sessionStorage
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userName", data.nombre);
-        localStorage.setItem("isLogueado", "true");
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("userName", data.nombre);
+        sessionStorage.setItem("isLogueado", "true");
 
         const decoded = jwtDecode(data.token);
 
@@ -113,13 +113,13 @@ export default {
         }
 
         if (data.tipo === "admin") {
-          localStorage.setItem("isAdmin", "true");
+          sessionStorage.setItem("isAdmin", "true");
           // Asegurar que la bandera de usuario normal queda desactivada
-          localStorage.setItem("isUsuario", "false");
+          sessionStorage.setItem("isUsuario", "false");
         } else {
-          localStorage.setItem("isUsuario", "true");
+          sessionStorage.setItem("isUsuario", "true");
           // Asegurar que la bandera admin queda desactivada
-          localStorage.setItem("isAdmin", "false");
+          sessionStorage.setItem("isAdmin", "false");
         }
 
         Swal.fire({
