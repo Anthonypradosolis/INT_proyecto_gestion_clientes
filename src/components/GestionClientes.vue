@@ -383,6 +383,7 @@ import {
 } from "@/api/clientes.js";
 import Swal from "sweetalert2";
 import AvisoLegal from "./AvisoLegal.vue";
+import { jwtDecode } from "jwt-decode";
 
 // SCRIPTS CRUD //
 
@@ -427,9 +428,29 @@ const clientesPorPage = 10; // por defecto seria ref(10) y asi con 20 y 30 que s
 onMounted(async () => {
   // Leer estado de admin desde sessionStorage en el momento de montar (más robusto)
   isAdmin.value = sessionStorage.getItem("isAdmin") === "true";
+  const isUsuario = sessionStorage.getItem("isUsuario") === "true";
+
   // Si es admin mostramos el histórico completo por defecto
-  if (isAdmin.value) mostrarHistorico.value = true;
-  cargarClientes();
+  if (isAdmin.value) {
+    mostrarHistorico.value = true;
+    cargarClientes();
+  }
+  // Si es usuario normal, cargar su perfil directamente
+  else if (isUsuario) {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const dniUsuario = decoded.dni;
+        if (dniUsuario) {
+          await buscarClientePorDNI(dniUsuario);
+        }
+      } catch (error) {
+        console.error("Error al decodificar token:", error);
+      }
+    }
+  }
+
   currentPage.value = 1;
 });
 ///avanzar y retroceder
