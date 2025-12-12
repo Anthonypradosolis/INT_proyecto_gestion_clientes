@@ -218,6 +218,7 @@
             v-model="nuevoCliente.password"
             class="form-control flex-grow-1"
             required
+            disabled
           />
         </div>
 
@@ -237,6 +238,7 @@
                   nuevoCliente.passwordConfirm !== ''),
             }"
             required
+            disabled
           />
           <div
             v-if="
@@ -266,8 +268,8 @@
         </span>
       </div>
       <!-- Histórico -->
-      <!-- Checkbox al final -->
-      <div class="form-check form-switch ms-3">
+      <!-- Checkbox al final - solo visible para admin -->
+      <div class="form-check form-switch ms-3" v-if="isAdmin">
         <input
           type="checkbox"
           id="historico"
