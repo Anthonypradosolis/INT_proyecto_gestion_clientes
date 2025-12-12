@@ -26,7 +26,7 @@
           <li class="nav-item">
             <router-link class="nav-link" to="/">Inicio</router-link>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" v-if="isAdmin">
             <router-link class="nav-link" to="/clientes">Clientes</router-link>
           </li>
           <li class="nav-item">
@@ -37,16 +37,19 @@
           </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/ventas">Ventas</router-link>
-          </li>          
-          <li class="nav-item">
+          </li>
+          <!--          <li class="nav-item">
             <router-link class="nav-link" to="/pedidos">Pedidos</router-link>
           </li>
-          <li class="nav-item">
+          -->          
+          <!--          <li class="nav-item">
             <router-link class="nav-link" to="/listamodelos">Lista Modelos</router-link>
-          </li>          
-          <li class="nav-item">
+          </li>  
+          -->
+        <!--          <li class="nav-item">
             <router-link class="nav-link" to="/taller">Taller</router-link>
-          </li>                   
+          </li>  
+          -->
           <li class="nav-item">
             <router-link class="nav-link" to="/contacto">Contacto</router-link>
           </li>

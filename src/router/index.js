@@ -24,7 +24,7 @@ const routes = [
     {
         path: '/clientes',
         name: 'GestionClientes',
-        component: GestionClientes
+        component: GestionClientes,
     },
     {
         path: '/noticias',
