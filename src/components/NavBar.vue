@@ -48,10 +48,9 @@
             <router-link class="nav-link" to="/listamodelos">Lista Modelos</router-link>
           </li>  
           -->
-          <!--          <li class="nav-item">
+          <li class="nav-item">
             <router-link class="nav-link" to="/taller">Taller</router-link>
           </li>  
-          -->
           <li class="nav-item">
             <router-link class="nav-link" to="/contacto">Contacto</router-link>
           </li>

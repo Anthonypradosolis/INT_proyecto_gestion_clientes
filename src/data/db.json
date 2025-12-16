@@ -659,5 +659,16 @@
       "telefono": "677112233",
       "mensaje": "He tenido un problema con un pedido anterior, necesito asistencia técnica."
     }
+  ],
+  "taller": [
+    {
+      "id": "1",
+      "matricula": "3423ACB",
+      "movilCliente": "voctorsanchezg@gmail.com",
+      "fechaAlta": "2025-12-18",
+      "servicioTaller": "revision",
+      "estadoCita": "Pendiente",
+      "acepta": true
+    }
   ]
 }

@@ -5,6 +5,16 @@ const router = express.Router();
 
 router.post("/login", login);
 
+// Ruta para verificar si el usuario es administrador
+router.get("/check-admin", verificarToken, (req, res) => {
+    const isAdmin = req.user?.tipo === "admin";
+    res.json({ 
+        isAdmin, 
+        tipo: req.user?.tipo || 'user',
+        dni: req.user?.dni 
+    });
+});
+
 router.get("/modelos", verificarToken, soloAdmin, (req,res) => {
     res.json({message: `Hola ${req.user.dni}, estas autenticado`})
 });
