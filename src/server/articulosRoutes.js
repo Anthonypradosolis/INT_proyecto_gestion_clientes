@@ -73,7 +73,6 @@ router.post("/", upload.single('imagen'), async (req, res) => {
   }
 });
 
-
 // otras rutas PUT, DELETE, GET /:id igual
 
 export default router;
