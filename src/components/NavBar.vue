@@ -48,7 +48,7 @@
             <router-link class="nav-link" to="/listamodelos">Lista Modelos</router-link>
           </li>  
           -->
-          <li class="nav-item">
+          <li class="nav-item" v-if="isAdmin">
             <router-link class="nav-link" to="/taller">Taller</router-link>
           </li>  
           <li class="nav-item">
