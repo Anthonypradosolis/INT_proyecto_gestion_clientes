@@ -314,38 +314,105 @@
         </div>
       </div>
 
-      <!-- FILA: Estado y botón -->
-      <div class="d-flex align-items-center justify-content-between mt-3">
-        <div>
-          <label class="form-label me-2">Estado:</label>
+      <!-- FILA: Estado -->
+      <div class="row g-3 align-items-center mt-3">
+        <div class="col-12 col-md-4">
+          <label for="estado" class="form-label">Estado:</label>
           <select
+            id="estado"
             v-model="vehiculo.estado"
-            class="form-select d-inline-block w-auto rounded shadow-none border"
+            class="form-select rounded shadow-none border"
           >
             <option value="disponible">Disponible</option>
             <option value="vendido">Vendido</option>
             <option value="reservado">Reservado</option>
           </select>
         </div>
+      </div>
 
-        <div>
-          <button
-            class="btn btn-primary rounded border shadow-none px-4"
-            type="submit"
-          >
-            {{ editando ? "Modificar" : "Guardar" }}
-          </button>
-        </div>
+      <!-- FILA: Botones centrados -->
+      <div class="d-flex align-items-center justify-content-center gap-3 mt-4">
+        <button
+          class="btn btn-primary rounded border shadow-none px-4"
+          type="submit"
+        >
+          {{ editando ? "Modificar" : "Guardar" }}
+        </button>
+
+        <button
+          class="btn btn-success rounded border shadow-none px-4"
+          type="button"
+          @click="imprimirTabla"
+        >
+          <i class="bi bi-printer me-2"></i>Imprimir
+        </button>
       </div>
     </form>
+
+    <!-- TABLA DE VEHÍCULOS -->
+    <div class="mt-5" v-if="vehiculos.length > 0">
+      <h5 class="text-center mb-3 fw-semibold text-primary border-bottom pb-2">
+        <i class="bi bi-table me-2"></i>Listado de Vehículos
+      </h5>
+      <div class="table-responsive">
+        <table
+          class="table table-bordered table-striped table-hover align-middle"
+        >
+          <thead class="table-primary">
+            <tr>
+              <th class="text-center">Matrícula</th>
+              <th class="text-center">Marca</th>
+              <th class="text-center">Modelo</th>
+              <th class="text-center">Estado</th>
+              <th class="text-center">Contacto</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in vehiculos" :key="index">
+              <td class="text-center">{{ item.matricula || "N/A" }}</td>
+              <td>{{ item.marca }}</td>
+              <td>{{ item.modelo }}</td>
+              <td class="text-center">
+                <span
+                  class="badge"
+                  :class="{
+                    'bg-success': item.estado === 'disponible',
+                    'bg-danger': item.estado === 'vendido',
+                    'bg-warning text-dark': item.estado === 'reservado',
+                  }"
+                >
+                  {{ item.estado }}
+                </span>
+              </td>
+              <td>
+                {{ item.contacto.nombre }}<br />
+                <small class="text-muted">{{ item.contacto.telefono }}</small>
+              </td>
+              <td class="text-center">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  @click="cargarVehiculo(item)"
+                  title="Editar vehículo"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import Swal from "sweetalert2";
-import { ref, computed } from "vue";
-import { addArticulo } from "@/api/articulos.js";
+import { ref, computed, onMounted } from "vue";
+import { addArticulo, getArticulos, updateArticulo } from "@/api/articulos.js";
 import provmuniData from "@/data/provmuni.json";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const vehiculo = ref({
   tipo: "",
@@ -374,6 +441,23 @@ const vehiculo = ref({
 });
 
 const editando = ref(false);
+const vehiculoEditandoId = ref(null);
+const vehiculos = ref([]);
+
+// Cargar vehículos al montar el componente
+onMounted(async () => {
+  await cargarVehiculos();
+});
+
+// Función para cargar todos los vehículos
+const cargarVehiculos = async () => {
+  try {
+    const data = await getArticulos();
+    vehiculos.value = data;
+  } catch (error) {
+    console.error("Error al cargar vehículos:", error);
+  }
+};
 
 // Cargar provincias y municipios desde JSON
 const provincias = ref(provmuniData.provincias);
@@ -569,9 +653,20 @@ const guardarVehiculo = async () => {
 
     formData.append("vehiculo", JSON.stringify(vehiculo.value));
 
-    const nuevo = await addArticulo(formData);
-
-    if (nuevo && nuevo._id) {
+    let resultado;
+    if (editando.value && vehiculoEditandoId.value) {
+      // Modificar vehículo existente
+      resultado = await updateArticulo(vehiculoEditandoId.value, formData);
+      Swal.fire({
+        icon: "success",
+        title: "Vehículo modificado",
+        text: "El vehículo ha sido actualizado correctamente.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else {
+      // Agregar nuevo vehículo
+      resultado = await addArticulo(formData);
       Swal.fire({
         icon: "success",
         title: "Vehículo guardado",
@@ -579,9 +674,13 @@ const guardarVehiculo = async () => {
         timer: 2000,
         showConfirmButton: false,
       });
-    } else {
-      console.error("Error al guardar el vehículo");
     }
+
+    if (!resultado) {
+      console.error("Error al guardar el vehículo");
+      return;
+    }
+
     Object.assign(vehiculo.value, {
       tipo: "",
       matricula: "",
@@ -607,6 +706,11 @@ const guardarVehiculo = async () => {
       fecha_publicacion: "",
     });
     archivo.value = null;
+    editando.value = false;
+    vehiculoEditandoId.value = null;
+
+    // Recargar la tabla
+    await cargarVehiculos();
   } catch (error) {
     console.error("Error al guardar:", error);
   }
@@ -619,5 +723,79 @@ const onFileChange = (event) => {
   if (file) {
     archivo.value = file;
   }
+};
+
+// Función para cargar datos de un vehículo en el formulario
+const cargarVehiculo = (item) => {
+  vehiculo.value = { ...item };
+  editando.value = true;
+  vehiculoEditandoId.value = item._id;
+
+  // Filtrar municipios según la provincia del vehículo
+  filtrarCiudades();
+
+  // Scroll al inicio del formulario
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  Swal.fire({
+    icon: "info",
+    title: "Vehículo cargado",
+    text: "Puede modificar los datos y guardar los cambios.",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
+
+// Función para imprimir la tabla en PDF
+const imprimirTabla = () => {
+  if (vehiculos.value.length === 0) {
+    Swal.fire({
+      icon: "warning",
+      title: "Sin datos",
+      text: "No hay vehículos para imprimir.",
+      showConfirmButton: true,
+    });
+    return;
+  }
+
+  const doc = new jsPDF();
+
+  // Título
+  doc.setFontSize(16);
+  doc.text("Listado de Vehículos", 105, 15, { align: "center" });
+
+  // Preparar datos para la tabla
+  const tableData = vehiculos.value.map((v) => [
+    v.matricula || "N/A",
+    v.marca,
+    v.modelo,
+    v.estado,
+    `${v.contacto.nombre}\n${v.contacto.telefono}`,
+  ]);
+
+  // Generar tabla
+  doc.autoTable({
+    startY: 25,
+    head: [["Matrícula", "Marca", "Modelo", "Estado", "Contacto"]],
+    body: tableData,
+    theme: "striped",
+    headStyles: { fillColor: [13, 110, 253] },
+    styles: { fontSize: 10 },
+    columnStyles: {
+      0: { halign: "center" },
+      3: { halign: "center" },
+    },
+  });
+
+  // Guardar PDF
+  doc.save("listado-vehiculos.pdf");
+
+  Swal.fire({
+    icon: "success",
+    title: "PDF generado",
+    text: "La tabla se ha exportado correctamente.",
+    timer: 2000,
+    showConfirmButton: false,
+  });
 };
 </script>
