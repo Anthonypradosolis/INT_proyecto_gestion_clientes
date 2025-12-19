@@ -217,8 +217,9 @@
             id="password"
             v-model="nuevoCliente.password"
             class="form-control flex-grow-1"
-            required
-            disabled
+            :required="!editando"
+            :disabled="!esPerfilPropio"
+            placeholder="Dejar vacío para no cambiar"
           />
         </div>
 
@@ -237,8 +238,9 @@
                 (nuevoCliente.password !== '' ||
                   nuevoCliente.passwordConfirm !== ''),
             }"
-            required
-            disabled
+            :required="!editando"
+            :disabled="!esPerfilPropio"
+            placeholder="Dejar vacío para no cambiar"
           />
           <div
             v-if="
@@ -372,7 +374,8 @@
 
 <script setup>
 import provmuniData from "@/data/provmuni.json";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { useRoute } from "vue-router";
 import bcrypt from "bcryptjs";
 import {
   getClientes,
@@ -386,6 +389,9 @@ import AvisoLegal from "./AvisoLegal.vue";
 import { jwtDecode } from "jwt-decode";
 
 // SCRIPTS CRUD //
+
+// Obtener la ruta actual para detectar si viene de "Mi Perfil"
+const route = useRoute();
 
 // Objeto reactivo que almacena los datos del cliente actual en el formulario
 const nuevoCliente = ref({
@@ -415,6 +421,8 @@ const isAdmin = ref(sessionStorage.getItem("isAdmin") === "true");
 // la mayoría de campos y acciones estarán deshabilitados.
 const avisoLegal = ref(false); // Si el aviso legal ha sido aceptado
 const clientes = ref([]); // Array que almacena todos los clientes
+// Variable para detectar si está viendo su propio perfil
+const esPerfilPropio = ref(false);
 
 // Variables para paginación
 const numClientes = ref(0);
@@ -423,19 +431,43 @@ const clientesPorPage = 10; // por defecto seria ref(10) y asi con 20 y 30 que s
 
 // Cargar clientes al montar el componente
 
-// Zona Cargar clientes Al Montar el componente
-// Al montar el componente, se cargan los clientes y se reinicia la página actual.
-onMounted(async () => {
-  // Leer estado de admin desde sessionStorage en el momento de montar (más robusto)
+// Función auxiliar para cargar datos según el contexto
+const cargarDatosSegunContexto = async () => {
+  // Leer estado de admin desde sessionStorage
   isAdmin.value = sessionStorage.getItem("isAdmin") === "true";
   const isUsuario = sessionStorage.getItem("isUsuario") === "true";
 
-  // Si es admin mostramos el histórico completo por defecto
-  if (isAdmin.value) {
+  // Verificar si viene del enlace "Mi Perfil"
+  const verPerfil = route.query.perfil === "true";
+
+  // Si viene de "Mi Perfil", cargar el perfil del usuario actual (admin o usuario normal)
+  if (verPerfil) {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        const dniUsuario = decoded.dni;
+        if (dniUsuario) {
+          await buscarClientePorDNI(dniUsuario);
+          // Marcar el aviso legal como aceptado ya que el usuario ya está registrado
+          avisoLegal.value = nuevoCliente.value.lopd || true;
+          // Marcar que está viendo su propio perfil
+          esPerfilPropio.value = true;
+        }
+      } catch (error) {
+        console.error("Error al decodificar token:", error);
+      }
+    }
+  }
+  // Si es admin y NO viene de "Mi Perfil", mostrar el histórico completo
+  else if (isAdmin.value) {
+    limpiarCampos(); // Limpiar formulario antes de mostrar lista
     mostrarHistorico.value = true;
     cargarClientes();
+    // No está viendo su propio perfil
+    esPerfilPropio.value = false;
   }
-  // Si es usuario normal, cargar su perfil directamente
+  // Si es usuario normal y NO viene de "Mi Perfil", cargar su perfil directamente
   else if (isUsuario) {
     const token = sessionStorage.getItem("token");
     if (token) {
@@ -444,15 +476,36 @@ onMounted(async () => {
         const dniUsuario = decoded.dni;
         if (dniUsuario) {
           await buscarClientePorDNI(dniUsuario);
+          // Marcar el aviso legal como aceptado ya que el usuario ya está registrado
+          avisoLegal.value = nuevoCliente.value.lopd || true;
+          // Usuario normal siempre ve su propio perfil
+          esPerfilPropio.value = true;
         }
       } catch (error) {
         console.error("Error al decodificar token:", error);
       }
     }
   }
+};
 
+// Zona Cargar clientes Al Montar el componente
+// Al montar el componente, se cargan los clientes y se reinicia la página actual.
+onMounted(async () => {
+  await cargarDatosSegunContexto();
   currentPage.value = 1;
 });
+
+// Watch para detectar cambios en la ruta (cuando navegas entre /clientes y /clientes?perfil=true)
+watch(
+  () => route.query.perfil,
+  async (newVal, oldVal) => {
+    // Solo recargar si el valor cambió
+    if (newVal !== oldVal) {
+      await cargarDatosSegunContexto();
+      currentPage.value = 1;
+    }
+  }
+);
 ///avanzar y retroceder
 
 // Métodos de paginación
@@ -503,19 +556,18 @@ const cargarClientes = () => {
 };
 
 const guardarCliente = async () => {
-  // Validar contraseñas
-  if (nuevoCliente.value.password !== passwordConfirm.value) {
-    Swal.fire({
-      icon: "error",
-      title: "Error en contraseña",
-      text: "Las contraseñas no coinciden.",
-      showConfirmButton: true,
-    });
-    return;
+  // Validar contraseñas solo si se están modificando
+  if (nuevoCliente.value.password || nuevoCliente.value.passwordConfirm) {
+    if (nuevoCliente.value.password !== nuevoCliente.value.passwordConfirm) {
+      Swal.fire({
+        icon: "error",
+        title: "Error en contraseña",
+        text: "Las contraseñas no coinciden.",
+        showConfirmButton: true,
+      });
+      return;
+    }
   }
-
-  const salt = bcrypt.genSaltSync(10);
-  const hash = bcrypt.hashSync(nuevoCliente.value.password, salt);
 
   // Antes de guardar, el usuario debe haber aceptado el Aviso Legal
   if (!avisoLegal.value) {
@@ -528,20 +580,19 @@ const guardarCliente = async () => {
     return;
   }
 
-  // Comprobación de contraseñas: deben coincidir
-  if (nuevoCliente.value.password !== nuevoCliente.value.passwordConfirm) {
-    Swal.fire({
-      icon: "error",
-      title: "Las contraseñas no coinciden",
-      showConfirmButton: false,
-      timer: 2000,
-    });
-    return;
-  }
-  // Validar duplicados solo si estás creando (no si editando)
-
   // Evita duplicados si estamos creando un nuevo cliente
   if (!editando.value) {
+    // Al crear un nuevo cliente, la contraseña es obligatoria
+    if (!nuevoCliente.value.password) {
+      Swal.fire({
+        icon: "error",
+        title: "La contraseña es obligatoria",
+        showConfirmButton: false,
+        timer: 2000,
+      });
+      return;
+    }
+
     const duplicado = clientes.value.find(
       (cliente) =>
         cliente.dni === nuevoCliente.value.dni ||
@@ -571,21 +622,38 @@ const guardarCliente = async () => {
   });
 
   if (!result.isConfirmed) return;
-  //  cliente.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
 
   try {
-    nuevoCliente.value.password = hash;
+    // Preparar datos del cliente
+    const datosCliente = { ...nuevoCliente.value };
+
+    // Solo hashear y actualizar la contraseña si:
+    // 1. Es un nuevo cliente (no editando) O
+    // 2. Es su propio perfil Y ha ingresado una nueva contraseña
+    if (
+      !editando.value ||
+      (esPerfilPropio.value && nuevoCliente.value.password)
+    ) {
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(nuevoCliente.value.password, salt);
+      datosCliente.password = hash;
+    } else {
+      // Si está editando pero NO cambió la contraseña, eliminar del objeto
+      delete datosCliente.password;
+      delete datosCliente.passwordConfirm;
+    }
+
     // modo edicion
     if (editando.value) {
       // Validar campos
       // Modificar cliente (PUT)+
 
       // Asegurarnos de guardar el estado de aceptación LOPD según el checkbox
-      nuevoCliente.value.lopd = avisoLegal.value;
+      datosCliente.lopd = avisoLegal.value;
       // Actualiza el cliente en la API
       const clienteActualizado = await updateCliente(
         clienteEditandoId.value,
-        nuevoCliente.value
+        datosCliente
       );
 
       // Reemplaza el cliente modificado en la lista local
@@ -603,9 +671,9 @@ const guardarCliente = async () => {
       // Agregar cliente (POST)
 
       // Asegurarnos de guardar el estado de aceptación LOPD según el checkbox
-      nuevoCliente.value.lopd = avisoLegal.value;
+      datosCliente.lopd = avisoLegal.value;
 
-      const clienteAgregado = await addCliente(nuevoCliente.value);
+      const clienteAgregado = await addCliente(datosCliente);
       clientes.value.push(clienteAgregado);
       Swal.fire({
         icon: "success",
@@ -787,6 +855,20 @@ const editarCliente = (movil) => {
   filtrarMunicipios();
   nuevoCliente.value.municipio = cliente.municipio; // 🟢 Ahora estamos en modo edición
   clienteEditandoId.value = cliente.id;
+
+  // Verificar si está editando su propio perfil
+  const token = sessionStorage.getItem("token");
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      esPerfilPropio.value = decoded.dni === cliente.dni;
+    } catch (error) {
+      console.error("Error al decodificar token:", error);
+      esPerfilPropio.value = false;
+    }
+  } else {
+    esPerfilPropio.value = false;
+  }
 };
 
 ///CODIGO BUSQUEDA COMPONENTES
@@ -991,6 +1073,7 @@ const limpiarCampos = () => {
   //Salimos del modo edición → el DNI vuelve a ser editable
   editando.value = false;
   clienteEditandoId.value = null;
+  esPerfilPropio.value = false;
 
   // Opcional: limpiar validaciones visuales
   dniValido.value = true;

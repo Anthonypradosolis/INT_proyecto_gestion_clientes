@@ -2,9 +2,9 @@
 <div class="container-fluid my-1 p-3 border rounded-3 shadow-sm bg-light">
     <!-- Título principal -->
     <h4
-      class="text-center mx-2 my-1 bg-`primary-subtle py-1 bg-opacity-25  p-3 rounded" style="color: #7a0f16;"
+      class="text-center mx-2 my-1 bg-`primary-subtle py-1 bg-opacity-25  p-3 rounded text-primary" 
     >
-      <i class="bi bi-person-gear me-2"></i>Citas Taller
+      <i class="bi bi-person-gear me-2 "></i>Citas Taller
     </h4>
 
     <!-- Botón para limpiar formulario -->
@@ -403,9 +403,5 @@ const validarEmail = () => {
 </script>
 <style scoped>
 
-.table-primary th {
-  background-color:   #f59191 !important;
-  color: black !important;
-}
 
 </style>

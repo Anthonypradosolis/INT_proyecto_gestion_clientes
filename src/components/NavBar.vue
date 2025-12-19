@@ -82,7 +82,7 @@
             </li>
             <!-- Mostra "Mi Perfil" y "Cerrar Sesión" se está logueado -->
             <li v-if="isLogueado">
-              <router-link class="dropdown-item" to="/clientes"
+              <router-link class="dropdown-item" to="/clientes?perfil=true"
                 >Mi Perfil</router-link
               >
             </li>
