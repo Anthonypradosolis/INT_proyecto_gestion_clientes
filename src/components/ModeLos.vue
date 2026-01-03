@@ -85,20 +85,33 @@
             v-model="vehiculo.matricula"
             @blur="convertirMatriculaMayusculas"
             class="form-control rounded-0 shadow-none border"
+            :disabled="editando"
           />
+          <button
+            type="button"
+            class="btn btn-primary ms-2 border-0 shadow-none rounded-0"
+            @click="buscarPorMatricula(vehiculo.matricula)"
+            title="Buscar por matrícula"
+          >
+            <i class="bi bi-search"></i>
+          </button>
         </div>
 
         <div class="col-12 col-md-2 d-flex align-items-center">
           <label for="anio" class="form-label mb-0 me-3 text-nowrap"
             >Año:</label
           >
-          <input
-            type="number"
+          <select
             id="anio"
             v-model="vehiculo.anio"
-            class="form-control rounded-0 shadow-none border text-end"
+            class="form-select rounded-0 shadow-none border"
             required
-          />
+          >
+            <option disabled value="">Seleccione</option>
+            <option v-for="anio in aniosDisponibles" :key="anio" :value="anio">
+              {{ anio }}
+            </option>
+          </select>
         </div>
       </div>
 
@@ -340,6 +353,14 @@
         </button>
 
         <button
+          class="btn btn-secondary rounded border shadow-none px-4"
+          type="button"
+          @click="limpiarFormulario"
+        >
+          <i class="bi bi-arrow-clockwise me-2"></i>Limpiar
+        </button>
+
+        <button
           class="btn btn-success rounded border shadow-none px-4"
           type="button"
           @click="imprimirTabla"
@@ -391,11 +412,18 @@
               </td>
               <td class="text-center">
                 <button
-                  class="btn btn-sm btn-outline-primary"
+                  class="btn btn-sm btn-warning me-2"
                   @click="cargarVehiculo(item)"
                   title="Editar vehículo"
                 >
                   <i class="bi bi-pencil-square"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-danger"
+                  @click="eliminarVehiculo(item._id)"
+                  title="Eliminar vehículo"
+                >
+                  <i class="bi bi-trash"></i>
                 </button>
               </td>
             </tr>
@@ -409,7 +437,7 @@
 <script setup>
 import Swal from "sweetalert2";
 import { ref, computed, onMounted } from "vue";
-import { addArticulo, getArticulos, updateArticulo } from "@/api/articulos.js";
+import { addArticulo, getArticulos, updateArticulo, deleteArticulo } from "@/api/articulos.js";
 import provmuniData from "@/data/provmuni.json";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -443,6 +471,16 @@ const vehiculo = ref({
 const editando = ref(false);
 const vehiculoEditandoId = ref(null);
 const vehiculos = ref([]);
+
+// Generar array de años desde 1990 hasta el año actual + 1
+const aniosDisponibles = computed(() => {
+  const anioActual = new Date().getFullYear();
+  const anios = [];
+  for (let i = anioActual + 1; i >= 1990; i--) {
+    anios.push(i);
+  }
+  return anios;
+});
 
 // Cargar vehículos al montar el componente
 onMounted(async () => {
@@ -644,6 +682,40 @@ const guardarVehiculo = async () => {
     return;
   }
 
+  // Validar que la matrícula no esté duplicada
+  if (!editando.value) {
+    // Al crear nuevo vehículo, verificar que la matrícula no exista
+    const matriculaDuplicada = vehiculos.value.find(
+      (v) => v.matricula && v.matricula.toUpperCase() === vehiculo.value.matricula.toUpperCase()
+    );
+    if (matriculaDuplicada) {
+      Swal.fire({
+        icon: "error",
+        title: "Matrícula duplicada",
+        text: "Ya existe un vehículo con esa matrícula.",
+        showConfirmButton: true,
+      });
+      return;
+    }
+  } else {
+    // Al editar, verificar que la matrícula no esté duplicada en otros vehículos
+    const matriculaDuplicada = vehiculos.value.find(
+      (v) => 
+        v._id !== vehiculoEditandoId.value &&
+        v.matricula && 
+        v.matricula.toUpperCase() === vehiculo.value.matricula.toUpperCase()
+    );
+    if (matriculaDuplicada) {
+      Swal.fire({
+        icon: "error",
+        title: "Matrícula duplicada",
+        text: "Ya existe otro vehículo con esa matrícula.",
+        showConfirmButton: true,
+      });
+      return;
+    }
+  }
+
   try {
     const formData = new FormData();
 
@@ -670,7 +742,7 @@ const guardarVehiculo = async () => {
       Swal.fire({
         icon: "success",
         title: "Vehículo guardado",
-        text: "El vehículo ha sido guardado correctamente.",
+        text: "El vehículo ha sido guardado correctamente y aparecerá en Ventas.",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -681,38 +753,18 @@ const guardarVehiculo = async () => {
       return;
     }
 
-    Object.assign(vehiculo.value, {
-      tipo: "",
-      matricula: "",
-      marca: "",
-      modelo: "",
-      anio: "",
-      estado: "disponible",
-      kilometros: "",
-      precio: "",
-      combustible: "",
-      transmision: "",
-      potencia_cv: "",
-      descripcion: "",
-      ubicacion: {
-        provincia: "",
-        ciudad: "",
-      },
-      contacto: {
-        nombre: "",
-        telefono: "",
-        email: "",
-      },
-      fecha_publicacion: "",
-    });
-    archivo.value = null;
-    editando.value = false;
-    vehiculoEditandoId.value = null;
+    limpiarFormulario();
 
     // Recargar la tabla
     await cargarVehiculos();
   } catch (error) {
     console.error("Error al guardar:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al guardar",
+      text: "Hubo un problema al guardar el vehículo. Inténtelo de nuevo.",
+      showConfirmButton: true,
+    });
   }
 };
 
@@ -744,6 +796,141 @@ const cargarVehiculo = (item) => {
     timer: 2000,
     showConfirmButton: false,
   });
+};
+
+// Función para eliminar un vehículo definitivamente
+const eliminarVehiculo = async (id) => {
+  const result = await Swal.fire({
+    title: "¿Eliminar vehículo?",
+    text: "Esta acción es definitiva y no se puede deshacer.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await deleteArticulo(id);
+    
+    Swal.fire({
+      icon: "success",
+      title: "Vehículo eliminado",
+      text: "El vehículo ha sido eliminado definitivamente.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    // Recargar la tabla
+    await cargarVehiculos();
+  } catch (error) {
+    console.error("Error al eliminar vehículo:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al eliminar",
+      text: "No se pudo eliminar el vehículo. Inténtelo de nuevo.",
+      showConfirmButton: true,
+    });
+  }
+};
+
+// Función para buscar vehículo por matrícula
+const buscarPorMatricula = async (matricula) => {
+  if (!matricula || matricula.trim() === "") {
+    Swal.fire({
+      icon: "warning",
+      title: "Debe introducir una matrícula",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    return;
+  }
+
+  try {
+    await cargarVehiculos();
+    
+    const vehiculoEncontrado = vehiculos.value.find(
+      (v) => v.matricula && v.matricula.toUpperCase() === matricula.toUpperCase()
+    );
+
+    if (!vehiculoEncontrado) {
+      Swal.fire({
+        icon: "info",
+        title: "Vehículo no encontrado",
+        text: "No existe ningún vehículo con esa matrícula.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    // Cargar los datos en el formulario
+    cargarVehiculo(vehiculoEncontrado);
+    
+    Swal.fire({
+      icon: "success",
+      title: "Vehículo encontrado",
+      text: "Los datos han sido cargados en el formulario.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error("Error al buscar vehículo:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al buscar",
+      text: "Hubo un problema al buscar el vehículo.",
+      showConfirmButton: true,
+    });
+  }
+};
+
+// Función para limpiar el formulario
+const limpiarFormulario = () => {
+  Object.assign(vehiculo.value, {
+    tipo: "",
+    matricula: "",
+    marca: "",
+    modelo: "",
+    anio: "",
+    estado: "disponible",
+    kilometros: "",
+    precio: "",
+    combustible: "",
+    transmision: "",
+    potencia_cv: "",
+    descripcion: "",
+    ubicacion: {
+      provincia: "",
+      ciudad: "",
+    },
+    contacto: {
+      nombre: "",
+      telefono: "",
+      email: "",
+    },
+    fecha_publicacion: "",
+  });
+  
+  archivo.value = null;
+  editando.value = false;
+  vehiculoEditandoId.value = null;
+  
+  // Limpiar validaciones
+  telefonoValido.value = true;
+  emailValido.value = true;
+  
+  // Limpiar municipios filtrados
+  municipiosFiltrados.value = [];
+  
+  // Limpiar input de archivo
+  const fileInput = document.getElementById("foto");
+  if (fileInput) {
+    fileInput.value = "";
+  }
 };
 
 // Función para imprimir la tabla en PDF
