@@ -345,13 +345,13 @@
       "movil": "654789465",
       "direccion": "Avda. De Galicia, 101",
       "provincia": "Cuenca",
-      "municipio": "Acebrón, El",
+      "municipio": "",
       "fechaAlta": "2025-10-02",
       "historico": true,
       "email": "sonia@gmail.com",
       "lopd": true,
       "tipoCliente": "on",
-      "password": "$2b$10$qrB8apr1vN5x7Sv0oZdzx.bGhQo5eqLwIAqQ1KCCy4nhHAZguXXtW",
+      "password": "$2b$10$O/z1b/k7i6CtSTpm5q7WjO9CC4J3IoOjLcK.dOr5hoq2w/vhZOqGK",
       "passwordConfirm": "12345"
     },
     {
@@ -489,6 +489,23 @@
       "historico": false,
       "lopd": true,
       "password": "12345",
+      "passwordConfirm": "12345"
+    },
+    {
+      "id": "67be",
+      "dni": "14142666N",
+      "nombre": "Pablo",
+      "apellidos": "Pereira Timon",
+      "email": "pablopt@gmail.com",
+      "movil": "689734012",
+      "direccion": "Calle Ecuador",
+      "provincia": "Pontevedra",
+      "municipio": "Vigo",
+      "fechaAlta": "2026-01-02",
+      "historico": true,
+      "lopd": true,
+      "tipoCliente": "on",
+      "password": "$2b$10$W/rZesq.USHeeHm7WHo2dehPQyJ2Sj9/qoOy3eC9aHUZLfxLd3Atq",
       "passwordConfirm": "12345"
     }
   ],

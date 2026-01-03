@@ -17,7 +17,7 @@
               type="text"
               id="dni"
               v-model="nuevoCliente.dni"
-              @blur="validarDni"
+              @blur="validarDniYCapitalizar"
               class="form-control w-auto w-25 text-center ms-0"
               :class="{ 'is-invalid': !dniValido }"
               required
@@ -29,6 +29,7 @@
               type="button"
               class="btn btn btn-primary ms-3 border-0 shadow-none rounded-0"
               @click="buscarClientePorDNI(nuevoCliente.dni)"
+              title="Buscar por DNI"
             >
               <i class="bi bi-search"></i>
             </button>
@@ -146,6 +147,14 @@
             class="form-control flex-grow-1 text-center"
             :class="{ 'is-invalid': !movilValido }"
           />
+          <button
+            type="button"
+            class="btn btn-primary ms-2 border-0 shadow-none rounded-0"
+            @click="buscarClientePorMovil(nuevoCliente.movil)"
+            title="Buscar por móvil"
+          >
+            <i class="bi bi-search"></i>
+          </button>
         </div>
       </div>
 
@@ -218,8 +227,8 @@
             v-model="nuevoCliente.password"
             class="form-control flex-grow-1"
             :required="!editando"
-            :disabled="!esPerfilPropio"
-            placeholder="Dejar vacío para no cambiar"
+            :disabled="editando && !esPerfilPropio"
+            :placeholder="editando && !esPerfilPropio ? 'No puede modificar password de otros usuarios' : 'Dejar vacío para no cambiar'"
           />
         </div>
 
@@ -239,8 +248,8 @@
                   nuevoCliente.passwordConfirm !== ''),
             }"
             :required="!editando"
-            :disabled="!esPerfilPropio"
-            placeholder="Dejar vacío para no cambiar"
+            :disabled="editando && !esPerfilPropio"
+            :placeholder="editando && !esPerfilPropio ? 'No puede modificar password de otros usuarios' : 'Dejar vacío para no cambiar'"
           />
           <div
             v-if="
@@ -282,7 +291,7 @@
         <label for="historico" class="form-check-label ms-2">Histórico</label>
       </div>
 
-      <!-- Botón centrado -->
+      <!-- Botones centrados -->
       <div class="text-center">
         <button
           type="submit"
@@ -290,6 +299,15 @@
           class="btn btn-primary px-4"
         >
           {{ editando ? "Modificar" : "Guardar" }}
+        </button>
+        <button
+          v-if="isAdmin && clientes.length > 0"
+          type="button"
+          class="btn btn-success px-4 ms-3"
+          @click="imprimirListado"
+          title="Imprimir listado de clientes"
+        >
+          <i class="bi bi-printer"></i> Imprimir
         </button>
       </div>
     </form>
@@ -580,7 +598,10 @@ const guardarCliente = async () => {
     return;
   }
 
-  // Evita duplicados si estamos creando un nuevo cliente
+  // Evita duplicados si estamos creando un nuevo cliente o editando
+  // Refrescar lista completa antes de validar
+  await cargarClientes();
+
   if (!editando.value) {
     // Al crear un nuevo cliente, la contraseña es obligatoria
     if (!nuevoCliente.value.password) {
@@ -593,6 +614,7 @@ const guardarCliente = async () => {
       return;
     }
 
+    // Verificar duplicados al crear
     const duplicado = clientes.value.find(
       (cliente) =>
         cliente.dni === nuevoCliente.value.dni ||
@@ -602,9 +624,29 @@ const guardarCliente = async () => {
     if (duplicado) {
       Swal.fire({
         icon: "error",
-        title: "DNI, móvil o email duplicados",
-        showConfirmButton: false,
-        timer: 2000,
+        title: "Datos duplicados",
+        text: "Ya existe un cliente con ese DNI, móvil o email.",
+        showConfirmButton: true,
+        timer: 3000,
+      });
+      return;
+    }
+  } else {
+    // Al editar, verificar que no haya duplicados con otros clientes (excluyendo el actual)
+    const duplicado = clientes.value.find(
+      (cliente) =>
+        cliente.id !== clienteEditandoId.value &&
+        (cliente.dni === nuevoCliente.value.dni ||
+          cliente.movil === nuevoCliente.value.movil ||
+          cliente.email === nuevoCliente.value.email)
+    );
+    if (duplicado) {
+      Swal.fire({
+        icon: "error",
+        title: "Datos duplicados",
+        text: "Ya existe otro cliente con ese DNI, móvil o email.",
+        showConfirmButton: true,
+        timer: 3000,
       });
       return;
     }
@@ -684,28 +726,7 @@ const guardarCliente = async () => {
     }
 
     // Limpieza Reset formulario y estado
-    nuevoCliente.value = {
-      dni: "",
-      nombre: "",
-      apellidos: "",
-      email: "",
-      movil: "",
-      direccion: "",
-      provincia: "",
-      municipio: "",
-      fechaAlta: "",
-      historico: true,
-      lopd: false,
-      password: "",
-      passwordConfirm: "",
-    };
-    editando.value = true;
-    clienteEditandoId.value = null;
-
-    // Reset validaciones si tienes (dniValido, movilValido, etc)
-    dniValido.value = true;
-    movilValido.value = true;
-    emailValido.value = true;
+    limpiarCampos();
 
     // Refrescar lista completa (opcional)
     clientes.value = await getClientes();
@@ -911,6 +932,20 @@ const buscarClientePorDNI = async (dni) => {
     editando.value = true;
     clienteEditandoId.value = cliente.id;
 
+    // Verificar si está editando su propio perfil
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        esPerfilPropio.value = decoded.dni === cliente.dni;
+      } catch (error) {
+        console.error("Error al decodificar token:", error);
+        esPerfilPropio.value = false;
+      }
+    } else {
+      esPerfilPropio.value = false;
+    }
+
     Swal.fire({
       icon: "success",
       title: "Cliente encontrado y cargado",
@@ -919,6 +954,79 @@ const buscarClientePorDNI = async (dni) => {
     });
   } catch (error) {
     console.error("Error buscando cliente por DNI:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al buscar cliente",
+      text: "Verifique la conexión o contacte con el administrador.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  }
+};
+
+// Función para buscar cliente por móvil
+const buscarClientePorMovil = async (movil) => {
+  if (!movil || movil.trim() === "") {
+    Swal.fire({
+      icon: "warning",
+      title: "Debe introducir un móvil antes de buscar.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    return;
+  }
+
+  try {
+    // Refrescar lista desde la API
+    await cargarClientes();
+    
+    // Buscar en la lista local
+    const cliente = clientes.value.find((c) => c.movil === movil.trim());
+
+    if (!cliente) {
+      Swal.fire({
+        icon: "info",
+        title: "Cliente no encontrado",
+        text: "No existe ningún cliente con ese móvil.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    // Cargar los datos encontrados en el formulario
+    nuevoCliente.value = { ...cliente };
+    nuevoCliente.value.password = "";
+    nuevoCliente.value.passwordConfirm = "";
+    nuevoCliente.value.fechaAlta = formatearFechaParaInput(cliente.fechaAlta);
+
+    // Actualiza lista de municipios si cambia la provincia
+    filtrarMunicipios();
+    editando.value = true;
+    clienteEditandoId.value = cliente.id;
+
+    // Verificar si está editando su propio perfil
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        esPerfilPropio.value = decoded.dni === cliente.dni;
+      } catch (error) {
+        console.error("Error al decodificar token:", error);
+        esPerfilPropio.value = false;
+      }
+    } else {
+      esPerfilPropio.value = false;
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: "Cliente encontrado y cargado",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error("Error buscando cliente por móvil:", error);
     Swal.fire({
       icon: "error",
       title: "Error al buscar cliente",
@@ -1028,6 +1136,17 @@ const validarDni = () => {
   dniValido.value = validarDniNie(nuevoCliente.value.dni);
 };
 
+// Función combinada: capitalizar DNI y validar
+const validarDniYCapitalizar = () => {
+  // Capitalizar primero
+  nuevoCliente.value.dni = (nuevoCliente.value.dni || "")
+    .toString()
+    .trim()
+    .toUpperCase();
+  // Luego validar
+  dniValido.value = validarDniNie(nuevoCliente.value.dni);
+};
+
 const validarMovil = () => {
   const movil = nuevoCliente.value.movil.trim();
   // Expresión para móvil español (9 dígitos, empieza por 6, 7, 8 o 9)
@@ -1065,20 +1184,139 @@ const limpiarCampos = () => {
     direccion: "",
     provincia: "",
     municipio: "",
-    fecha_alta: "",
+    fechaAlta: "",
     historico: true,
     lopd: false,
     tipoCliente: "",
+    password: "",
+    passwordConfirm: "",
   };
   //Salimos del modo edición → el DNI vuelve a ser editable
   editando.value = false;
   clienteEditandoId.value = null;
   esPerfilPropio.value = false;
 
-  // Opcional: limpiar validaciones visuales
+  // Limpiar validaciones visuales
   dniValido.value = true;
   emailValido.value = true;
   movilValido.value = true;
+  
+  // Resetear checkbox de aviso legal (solo si no está logueado o es admin)
+  if (isAdmin.value || !sessionStorage.getItem("token")) {
+    avisoLegal.value = false;
+  }
+  
+  // Limpiar municipios filtrados
+  municipiosFiltrados.value = [];
+};
+
+// Función para imprimir el listado de clientes
+const imprimirListado = () => {
+  if (!clientes.value || clientes.value.length === 0) {
+    Swal.fire({
+      icon: "warning",
+      title: "No hay clientes para imprimir",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    return;
+  }
+
+  // Crear ventana de impresión
+  const ventanaImpresion = window.open("", "_blank");
+  
+  // Generar HTML para imprimir
+  let htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Listado de Clientes</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 20px;
+        }
+        h1 {
+          text-align: center;
+          color: #0d6efd;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
+        }
+        th {
+          background-color: #0d6efd;
+          color: white;
+        }
+        tr:nth-child(even) {
+          background-color: #f2f2f2;
+        }
+        .fecha-impresion {
+          text-align: right;
+          font-size: 0.9em;
+          color: #666;
+          margin-top: 10px;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Listado de Clientes</h1>
+      <p class="fecha-impresion">Fecha de impresión: ${new Date().toLocaleString('es-ES')}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Email</th>
+            <th>Móvil</th>
+            <th>Municipio</th>
+            <th>Provincia</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  // Añadir filas de clientes
+  clientes.value.forEach((cliente, index) => {
+    htmlContent += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${cliente.dni || ''}</td>
+        <td>${cliente.nombre || ''}</td>
+        <td>${cliente.apellidos || ''}</td>
+        <td>${cliente.email || ''}</td>
+        <td>${cliente.movil || ''}</td>
+        <td>${cliente.municipio || ''}</td>
+        <td>${cliente.provincia || ''}</td>
+        <td>${cliente.historico ? 'Activo' : 'Inactivo'}</td>
+      </tr>
+    `;
+  });
+
+  htmlContent += `
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
+
+  // Escribir contenido y lanzar impresión
+  ventanaImpresion.document.write(htmlContent);
+  ventanaImpresion.document.close();
+  
+  // Esperar a que se cargue el contenido y luego imprimir
+  ventanaImpresion.onload = () => {
+    ventanaImpresion.print();
+  };
 };
 </script>
 

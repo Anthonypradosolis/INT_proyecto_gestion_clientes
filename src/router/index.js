@@ -76,7 +76,7 @@ const routes = [
     },
     {
         path: '/ventas',
-        name: VenTas,
+        name: 'VenTas',
         component: VenTas,
     },        
     {
