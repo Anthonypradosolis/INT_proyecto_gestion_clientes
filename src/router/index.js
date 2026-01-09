@@ -12,6 +12,7 @@ import ConTacto from "../components/ConTacto.vue";
 import CitasTaller from "../components/CitasTaller.vue";
 import TablaLogin from "../components/TablaLogin.vue";
 import VenTas from "../components/VenTas.vue";
+import BusCar from "../components/BusCar.vue";
 import { loginUsuario, esAdmin  } from "../api/authApi";
 
 
@@ -78,6 +79,11 @@ const routes = [
         path: '/ventas',
         name: 'VenTas',
         component: VenTas,
+    },
+    {
+        path: '/buscar',
+        name: 'Buscar',
+        component: BusCar,
     },        
     {
         path: '/:pathMatch(.*)*',

@@ -55,6 +55,22 @@
             <router-link class="nav-link" to="/contacto">Contacto</router-link>
           </li>
         </ul>
+
+        <!-- BUSCADOR alineado a la derecha -->
+        <form class="d-flex ms-auto me-2" role="search" @submit.prevent="buscar">
+          <input
+          class="form-control form-control-sm me-2 rounded-0" 
+          type="search"
+          placeholder="Buscar..."
+          v-model="query"
+          style="width: 140px;"
+          />
+          <button class="btn btn-light btn-s, rounded-0" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+
+
         <!-- Dropdown de acceso/registro -->
         <div class="dropdown ms-auto">
           <span v-if="!isLogueado" class="navbar-text me-2 text-white">{{
@@ -100,12 +116,16 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-
+import { useRouter } from "vue-router";
+import { esAdmin } from '@/api/authApi.js'
 // Estado do login
 const isLogueado = ref(false);
 const isAdmin = ref(false);
 const isUsuario = ref(false);
 const userName = ref("");
+
+const router = useRouter();
+const query = ref(""); // IMPORTANTE: esto evita el warning
 
 // Cando o componente se monta, le localStorage (para cando montes a autenticación)
 onMounted(() => {
@@ -130,6 +150,18 @@ function logout() {
   // Redirixe ao inicio recargando a páxina
   window.location.href = "/";
 }
+
+function buscar(){
+  if(!query.value.trim()) return
+
+  router.push({
+    name: 'Buscar',
+    query: { q: query.value.trim() }
+  })
+}
+
+query.value = "" // optional: limpiar input despues de enviar
+
 </script>
 
 <style>
