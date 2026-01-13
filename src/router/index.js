@@ -14,7 +14,7 @@ import TablaLogin from "../components/TablaLogin.vue";
 import VenTas from "../components/VenTas.vue";
 import BusCar from "../components/BusCar.vue";
 import { loginUsuario, esAdmin  } from "../api/authApi";
-
+import CesTa from "../components/CesTa.vue";
 
 const routes = [
     {
@@ -90,6 +90,11 @@ const routes = [
         name: 'NotFound',
         component: NotFound
     },
+    {
+        path: '/cesta',
+        name: 'CesTa',
+        component: CesTa,
+    }
 
 ]
 const router = createRouter({
