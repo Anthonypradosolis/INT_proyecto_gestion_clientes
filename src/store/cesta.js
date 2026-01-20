@@ -76,6 +76,11 @@ export const useCestaStore = defineStore('cesta', {
         // Vacía toda la cesta
         clearCesta() {
             this.items = []
+        },
+
+        // Alias para vaciar la cesta
+        vaciarCesta() {
+            this.clearCesta()
         }
     }
 })

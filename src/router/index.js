@@ -15,6 +15,8 @@ import VenTas from "../components/VenTas.vue";
 import BusCar from "../components/BusCar.vue";
 import { loginUsuario, esAdmin  } from "../api/authApi";
 import CesTa from "../components/CesTa.vue";
+import TablaSuccess from "../components/TablaSuccess.vue";
+import TablaCanceL from "../components/TablaCanceL.vue";
 
 const routes = [
     {
@@ -94,6 +96,16 @@ const routes = [
         path: '/cesta',
         name: 'CesTa',
         component: CesTa,
+    },
+    {
+        path: '/success',
+        name: 'TablaSuccess',
+        component: TablaSuccess,
+    },
+    {
+        path: '/cancel',
+        name: 'TablaCanceL',
+        component: TablaCanceL,
     }
 
 ]

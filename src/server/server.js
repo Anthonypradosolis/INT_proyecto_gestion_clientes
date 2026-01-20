@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import Stripe from "stripe";
 import authRoutes from "./authRoutes.js";
 import contactoRoutes from "./contactos.js";
 
@@ -17,6 +18,9 @@ import { soloAdmin, verificarToken } from "./authController.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000; // Use PORT from environment or default to 5000
+
+// Configuración de Stripe: carga de la clave secreta
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,6 +54,38 @@ app.use("/api/articulos", articulosRoutes);
 
 app.use("/api/articulos", articulosRoutes, verificarToken, soloAdmin)
 
+// ruta crear sesión checkout
+app.post("/create-checkout-session", async (req, res) => {
+    try {
+        const { items } = req.body;
+
+        const lineItems = items.map((item) => ({
+            price_data: {
+                currency: 'eur',
+                product_data: {
+                    name: item.nombre,
+                },
+                unit_amount: Math.round(item.precio * 100), // convertir a céntimos
+            },
+            quantity: item.cantidad,
+        }));
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: lineItems,
+            mode: 'payment',
+            success_url: 'http://localhost:5173/success', //crear estos componentes en frontend
+            cancel_url: 'http://localhost:5173/cancel', //crear estos componentes en frontend
+        });
+
+        res.json({ url: session.url });
+    } catch (error) {
+        console.error("Error creating checkout session:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//
 /// Conexión a MongoDB
 mongoose
     .connect(process.env.MONGODB_URI)
