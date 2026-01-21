@@ -89,6 +89,13 @@ const iniciarPago = async () => {
   }
 
   try {
+    // GUARDAR los datos del carrito en localStorage ANTES de ir a Stripe
+    localStorage.setItem('ultimaCompra', JSON.stringify({
+      items: cesta.items,
+      total: cesta.totalPrecio,
+      fecha: new Date().toISOString()
+    }));
+
     // Crear la sesión de pago en el backend
     const response = await axios.post(
       "http://localhost:5000/create-checkout-session",
