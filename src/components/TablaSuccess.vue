@@ -134,7 +134,7 @@ const generarFacturaPDF = () => {
     doc.setFontSize(12);
     doc.text(totalText, positionX - 9, doc.lastAutoTable.finalY + 10);
 
-    // Guardar el archivo PDF
+    // Descargar el archivo PDF
     doc.save("factura.pdf");
     console.log("✅ PDF generado correctamente");
   } catch (error) {
