@@ -37,6 +37,30 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // AHORA VIENEN LAS RUTAS USANDO EL router DE EXPRESS
+
+// Buscar artículos (DEBE IR ANTES de la ruta GET /)
+router.get("/buscar", async (req, res) => {
+  const { q } = req.query;
+
+  if (!q) return res.json([]);
+
+  const regex = new RegExp(q, "i");
+  // supongamos solo la marca modelo y descripción
+  try {
+    const articulos = await Articulo.find({
+      $or: [
+        { marca: regex },
+        { modelo: regex },
+        { descripcion: regex }
+      ]
+    });
+
+    res.json(articulos);
+  } catch (err) {
+    res.status(500).json({ error: "Error en la búsqueda" });
+  }
+});
+
 // Obtener todos los artículo
 router.get("/", async (req, res) => {
   const articulos = await Articulo.find();

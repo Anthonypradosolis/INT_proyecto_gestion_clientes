@@ -88,6 +88,17 @@ const iniciarPago = async () => {
     return;
   }
 
+  // Verificar si el usuario está registrado/autenticado
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    mostrarAlerta(
+      "Autenticación requerida", 
+      "Debes iniciar sesión o registrarte para realizar una compra", 
+      "warning"
+    );
+    return;
+  }
+
   try {
     // GUARDAR los datos del carrito en localStorage ANTES de ir a Stripe
     localStorage.setItem('ultimaCompra', JSON.stringify({

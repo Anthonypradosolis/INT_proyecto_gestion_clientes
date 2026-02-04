@@ -13,6 +13,7 @@ import contactoRoutes from "./contactos.js";
 // MONGOSEE NO SABE NADA DE RUTAS CONTROLADRES Y MODELOS, HAY QUE CREARLOS MANUALMENTE
 
 import articulosRoutes from "./articulosRoutes.js"; // ruta al router backend
+import facturasRoutes from "./facturasRoutes.js"; // ruta al router de facturas
 import { soloAdmin, verificarToken } from "./authController.js";
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.use(express.json());
 // Rutas
 app.use("/api/auth", authRoutes);
 app.use("/api/contacto", contactoRoutes);
+app.use("/api/facturas", verificarToken, facturasRoutes);
 
 
 

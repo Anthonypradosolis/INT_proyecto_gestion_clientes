@@ -209,22 +209,6 @@
       "id": "e406"
     },
     {
-      "dni": "Y1234567X",
-      "fechaAlta": "2025-09-07",
-      "nombre": "María Del Mar",
-      "apellidos": "Gómez Rodríguez",
-      "email": "maria.gomez@example.com",
-      "movil": "645678901",
-      "direccion": "Calle García 21",
-      "provincia": "Valencia",
-      "municipio": "Gandía",
-      "historico": true,
-      "lopd": true,
-      "password": "",
-      "tipo": "user",
-      "id": "ba17"
-    },
-    {
       "dni": "56712389R",
       "fechaAlta": "2021-11-12",
       "nombre": "Carlos",
@@ -507,6 +491,42 @@
       "tipoCliente": "on",
       "password": "$2b$10$W/rZesq.USHeeHm7WHo2dehPQyJ2Sj9/qoOy3eC9aHUZLfxLd3Atq",
       "passwordConfirm": "12345"
+    },
+    {
+      "id": "2358",
+      "dni": "55555555K",
+      "nombre": "Juan",
+      "apellidos": "Perez",
+      "email": "juanperez@gmail.com",
+      "movil": "666345678",
+      "direccion": "Avda. De Galicia, 101",
+      "provincia": "Pontevedra",
+      "municipio": "Vigo",
+      "fechaAlta": "2026-02-04",
+      "historico": true,
+      "lopd": true,
+      "tipo": "admin",
+      "tipoCliente": "on",
+      "password": "$2b$10$qpoU7PESR98fg2kckZYhler7g/UDNmd5J60PoQKhUVTBy2v5C9EuO",
+      "passwordConfirm": "abc123"
+    },
+    {
+      "id": "e5a0",
+      "dni": "Y1234567X",
+      "nombre": "María Del Mar",
+      "apellidos": "Gómez Rodríguez",
+      "email": "maria.gomez@gmail.com",
+      "movil": "612387690",
+      "direccion": "Avda. De Galicia, 101",
+      "provincia": "Pontevedra",
+      "municipio": "Vigo",
+      "fechaAlta": "2026-02-04",
+      "historico": true,
+      "lopd": true,
+      "tipo": "user",
+      "tipoCliente": "on",
+      "password": "$2b$10$jtF9elPw/.M.zM86lFoaaeo95AX8X4ByX1nfmaInbe8gapclXfbTe",
+      "passwordConfirm": "abc123"
     }
   ],
   "noticias": [
