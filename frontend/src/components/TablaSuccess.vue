@@ -67,6 +67,9 @@ onMounted(async () => {
 
   // Vaciar el carrito ahora que ya tenemos los datos guardados
   cesta.vaciarCesta();
+  
+  // Limpiar también ultimaCompra del localStorage
+  localStorage.removeItem("ultimaCompra");
 });
 
 // Función para guardar la factura en la base de datos MongoDB
@@ -189,8 +192,7 @@ const generarFacturaPDF = () => {
 };
 
 onBeforeUnmount(() => {
-  // El carrito ya se vació en onMounted
-  // Solo limpiar localStorage si el usuario sale sin descargar la factura
+  // Limpiar localStorage por si acaso
   if (localStorage.getItem("ultimaCompra")) {
     localStorage.removeItem("ultimaCompra");
   }

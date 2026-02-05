@@ -24,11 +24,18 @@
                     </div>
 
                     <div class="card-footer text-end bg-white">
-                        <span class="badge bg-primary">{{ car.estado }}</span>
+                        <span 
+                            class="badge"
+                            :class="car.estado === 'vendido' ? 'bg-danger' : 'bg-primary'"
+                        >
+                            {{ car.estado }}
+                        </span>
                         <button
                             class="btn badge btn-sm btn-success ms-2"
+                            :disabled="car.estado === 'vendido'"
                             @click.stop="agregarACesta(car)">
-                            <i class="bi bi-cart3 me-1"></i> Agregar Cesta
+                            <i class="bi bi-cart3 me-1"></i> 
+                            {{ car.estado === 'vendido' ? 'No disponible' : 'Agregar Cesta' }}
                         </button>
                     </div>
                 </div>
@@ -70,5 +77,11 @@ const agregarACesta = (vehiculos) => {
 .card-title{
     font-weight: bold;
     text-transform: capitalize;
+}
+
+/* Estilo para botón deshabilitado */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 </style>

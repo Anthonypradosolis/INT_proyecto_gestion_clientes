@@ -2,6 +2,26 @@
 // lo que nos permite crear un store que puede ser usado en cualquier componente
 import { defineStore } from 'pinia'
 
+// Función auxiliar para cargar la cesta desde localStorage
+const cargarCestaDesdeLocalStorage = () => {
+    try {
+        const cestaGuardada = localStorage.getItem('cesta')
+        return cestaGuardada ? JSON.parse(cestaGuardada) : []
+    } catch (error) {
+        console.error('Error al cargar la cesta desde localStorage:', error)
+        return []
+    }
+}
+
+// Función auxiliar para guardar la cesta en localStorage
+const guardarCestaEnLocalStorage = (items) => {
+    try {
+        localStorage.setItem('cesta', JSON.stringify(items))
+    } catch (error) {
+        console.error('Error al guardar la cesta en localStorage:', error)
+    }
+}
+
 // Creamos el store de la cesta
 // 'cesta' es el id del store, usado internamente por Pinia
 export const useCestaStore = defineStore('cesta', {
@@ -11,7 +31,8 @@ export const useCestaStore = defineStore('cesta', {
     // -------------------
     state: () => ({
         // Array que contendrá los productos que el usuario añada a la cesta
-        items: []
+        // Se carga desde localStorage si existe
+        items: cargarCestaDesdeLocalStorage()
     }),
 
     //
@@ -54,28 +75,43 @@ export const useCestaStore = defineStore('cesta', {
                     cantidad: 1
                 })
             }
+            
+            // Guardamos en localStorage después de cada cambio
+            guardarCestaEnLocalStorage(this.items)
         },
 
         // Elimina un producto de la cesta por su id
         removeProducto(id) {
             this.items = this.items.filter(item => item.id !== id)
+            // Guardamos en localStorage después de cada cambio
+            guardarCestaEnLocalStorage(this.items)
         },
 
         // Incrementa la cantidad de un producto
         incrementar(id) {
             const item = this.items.find(item => item.id === id)
-            if (item) item.cantidad++
+            if (item) {
+                item.cantidad++
+                // Guardamos en localStorage después de cada cambio
+                guardarCestaEnLocalStorage(this.items)
+            }
         },
 
         // Decrementa la cantidad de un producto, sin permitir que sea menor que 1
         decrementar(id) {
             const item = this.items.find(item => item.id === id && item.cantidad > 1)
-            if (item) item.cantidad--
+            if (item) {
+                item.cantidad--
+                // Guardamos en localStorage después de cada cambio
+                guardarCestaEnLocalStorage(this.items)
+            }
         },
 
         // Vacía toda la cesta
         clearCesta() {
             this.items = []
+            // Guardamos en localStorage después de cada cambio
+            guardarCestaEnLocalStorage(this.items)
         },
 
         // Alias para vaciar la cesta

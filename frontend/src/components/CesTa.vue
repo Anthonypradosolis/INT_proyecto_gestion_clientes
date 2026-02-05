@@ -6,7 +6,22 @@
       La cesta está vacía.
     </div>
 
-    <div v-else>
+    <!-- Mensaje de autenticación requerida -->
+    <div
+      v-if="!estaAutenticado && cesta.items.length > 0"
+      class="alert alert-warning d-flex justify-content-between align-items-center"
+    >
+      <span>
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Tienes que iniciar sesión para continuar con la compra
+      </span>
+      <router-link to="/login" class="btn btn-primary btn-sm">
+        Iniciar Sesión
+      </router-link>
+    </div>
+
+    <!-- Tabla de productos (se muestra siempre que haya items) -->
+    <div v-if="cesta.items.length > 0">
       <table class="table">
         <thead>
           <tr>
@@ -70,8 +85,16 @@
 import { useCestaStore } from "@/store/cesta.js";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useRouter } from "vue-router";
+import { ref, computed } from "vue";
 
 const cesta = useCestaStore();
+const router = useRouter();
+
+// Computed para verificar si el usuario está autenticado
+const estaAutenticado = computed(() => {
+  return sessionStorage.getItem("token") !== null;
+});
 
 const incrementar = (id) => cesta.incrementar(id);
 const decrementar = (id) => cesta.decrementar(id);
@@ -89,23 +112,34 @@ const iniciarPago = async () => {
   }
 
   // Verificar si el usuario está registrado/autenticado
-  const token = sessionStorage.getItem('token');
+  const token = sessionStorage.getItem("token");
   if (!token) {
-    mostrarAlerta(
-      "Autenticación requerida", 
-      "Debes iniciar sesión o registrarte para realizar una compra", 
-      "warning"
-    );
+    Swal.fire({
+      title: "Autenticación requerida",
+      text: "Tienes que iniciar sesión para continuar con la compra",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Iniciar Sesión",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push("/login");
+      }
+    });
+    // No hacer nada, el mensaje ya se muestra en el template
     return;
   }
 
   try {
     // GUARDAR los datos del carrito en localStorage ANTES de ir a Stripe
-    localStorage.setItem('ultimaCompra', JSON.stringify({
-      items: cesta.items,
-      total: cesta.totalPrecio,
-      fecha: new Date().toISOString()
-    }));
+    localStorage.setItem(
+      "ultimaCompra",
+      JSON.stringify({
+        items: cesta.items,
+        total: cesta.totalPrecio,
+        fecha: new Date().toISOString(),
+      }),
+    );
 
     // Crear la sesión de pago en el backend
     const response = await axios.post(
