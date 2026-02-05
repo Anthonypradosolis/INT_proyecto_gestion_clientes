@@ -5,7 +5,7 @@
       <ul class="list-inline mb-0">
         <li class="list-inline-item"><a href="/avisolegal" target="_blank" class="text-light text-decoration-none">Aviso legal</a></li>
         <li class="list-inline-item"><a href="/politicaprivacidad" target="_blank" class="text-light text-decoration-none">Política de privacidad</a></li>
-        <li class="list-inline-item"><a href="#" class="text-light text-decoration-none">Contacto</a></li>
+        <li class="list-inline-item"><a href="/contacto" class="text-light text-decoration-none">Contacto</a></li>
       </ul>
     </div>
   </footer>
