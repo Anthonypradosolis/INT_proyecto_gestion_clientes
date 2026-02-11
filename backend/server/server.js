@@ -53,12 +53,7 @@ app.use("/api/facturas", verificarToken, facturasRoutes);
 // json-server es un backend ya construido.
 // Express es un backend que TÚ construyes.
 // Por eso json-server no requiere rutas y Express sí.
-app.use("/api/articulos", articulosRoutes);
-
-// Verificar variable
-//console.log("MONGODB_URI =", process.env.MONGODB_URI);
-
-app.use("/api/articulos", articulosRoutes, verificarToken, soloAdmin)
+app.use("/api/articulos", verificarToken, articulosRoutes);
 
 // ruta crear sesión checkout
 app.post("/create-checkout-session", async (req, res) => {

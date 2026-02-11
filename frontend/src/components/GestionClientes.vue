@@ -18,8 +18,9 @@
               id="dni"
               v-model="nuevoCliente.dni"
               @blur="validarDniYCapitalizar"
+              @input="dniTocado = false"
               class="form-control w-auto w-25 text-center ms-0"
-              :class="{ 'is-invalid': !dniValido }"
+              :class="{ 'is-invalid': dniTocado && !dniValido }"
               required
               :disabled="editando"
               oninvalid="this.setCustomValidity('El DNI/NIE es obligatorio')"
@@ -33,8 +34,8 @@
             >
               <i class="bi bi-search"></i>
             </button>
-            <div v-if="!dniValido" class="invalid-feedback">
-              DNI o NIE inválido.
+            <div v-if="dniTocado && !dniValido" class="invalid-feedback">
+              DNI o NIE inválido. Formato: 12345678A o X1234567A
             </div>
           </div>
         </div>
@@ -228,7 +229,11 @@
             class="form-control flex-grow-1"
             :required="!editando"
             :disabled="editando && !esPerfilPropio"
-            :placeholder="editando && !esPerfilPropio ? 'No puede modificar password de otros usuarios' : 'Dejar vacío para no cambiar'"
+            :placeholder="
+              editando && !esPerfilPropio
+                ? 'No puede modificar password de otros usuarios'
+                : 'Dejar vacío para no cambiar'
+            "
           />
         </div>
 
@@ -249,7 +254,11 @@
             }"
             :required="!editando"
             :disabled="editando && !esPerfilPropio"
-            :placeholder="editando && !esPerfilPropio ? 'No puede modificar password de otros usuarios' : 'Dejar vacío para no cambiar'"
+            :placeholder="
+              editando && !esPerfilPropio
+                ? 'No puede modificar password de otros usuarios'
+                : 'Dejar vacío para no cambiar'
+            "
           />
           <div
             v-if="
@@ -522,7 +531,7 @@ watch(
       await cargarDatosSegunContexto();
       currentPage.value = 1;
     }
-  }
+  },
 );
 ///avanzar y retroceder
 
@@ -574,6 +583,35 @@ const cargarClientes = () => {
 };
 
 const guardarCliente = async () => {
+  // Validar DNI antes de continuar
+  if (!nuevoCliente.value.dni || nuevoCliente.value.dni.trim() === "") {
+    dniTocado.value = true;
+    dniValido.value = false;
+    Swal.fire({
+      icon: "error",
+      title: "DNI requerido",
+      text: "Debe introducir un DNI o NIE válido.",
+      showConfirmButton: true,
+    });
+    return;
+  }
+
+  // Capitalizar y validar DNI
+  nuevoCliente.value.dni = nuevoCliente.value.dni.trim().toUpperCase();
+  const dniEsValido = validarDniNie(nuevoCliente.value.dni);
+
+  if (!dniEsValido) {
+    dniTocado.value = true;
+    dniValido.value = false;
+    Swal.fire({
+      icon: "error",
+      title: "DNI/NIE inválido",
+      text: "El formato del DNI o NIE no es correcto. Formato: 12345678A o X1234567A",
+      showConfirmButton: true,
+    });
+    return;
+  }
+
   // Validar contraseñas solo si se están modificando
   if (nuevoCliente.value.password || nuevoCliente.value.passwordConfirm) {
     if (nuevoCliente.value.password !== nuevoCliente.value.passwordConfirm) {
@@ -619,7 +657,7 @@ const guardarCliente = async () => {
       (cliente) =>
         cliente.dni === nuevoCliente.value.dni ||
         cliente.movil === nuevoCliente.value.movil ||
-        cliente.email === nuevoCliente.value.email
+        cliente.email === nuevoCliente.value.email,
     );
     if (duplicado) {
       Swal.fire({
@@ -638,7 +676,7 @@ const guardarCliente = async () => {
         cliente.id !== clienteEditandoId.value &&
         (cliente.dni === nuevoCliente.value.dni ||
           cliente.movil === nuevoCliente.value.movil ||
-          cliente.email === nuevoCliente.value.email)
+          cliente.email === nuevoCliente.value.email),
     );
     if (duplicado) {
       Swal.fire({
@@ -695,12 +733,12 @@ const guardarCliente = async () => {
       // Actualiza el cliente en la API
       const clienteActualizado = await updateCliente(
         clienteEditandoId.value,
-        datosCliente
+        datosCliente,
       );
 
       // Reemplaza el cliente modificado en la lista local
       const index = clientes.value.findIndex(
-        (c) => c.id === clienteEditandoId.value
+        (c) => c.id === clienteEditandoId.value,
       );
       if (index !== -1) clientes.value[index] = clienteActualizado;
       Swal.fire({
@@ -812,7 +850,7 @@ const eliminarCliente = async (movil) => {
   // Buscar cliente completo (que incluye el ID)
   // Busca el cliente por movil
   const clienteAEliminar = clientes.value.find(
-    (cliente) => cliente.movil === movil
+    (cliente) => cliente.movil === movil,
   );
 
   if (!clienteAEliminar) {
@@ -905,8 +943,26 @@ const buscarClientePorDNI = async (dni) => {
     return;
   }
 
+  // Validar formato antes de buscar
+  const dniCapitalizado = dni.trim().toUpperCase();
+  if (!validarDniNie(dniCapitalizado)) {
+    dniTocado.value = true;
+    dniValido.value = false;
+    Swal.fire({
+      icon: "error",
+      title: "DNI/NIE inválido",
+      text: "El formato del DNI o NIE no es correcto. Formato: 12345678A o X1234567A",
+      showConfirmButton: true,
+    });
+    return;
+  }
+
+  // Si el formato es válido, limpiar errores
+  dniTocado.value = false;
+  dniValido.value = true;
+
   try {
-    const cliente = await getClientePorDni(dni.trim().toUpperCase());
+    const cliente = await getClientePorDni(dniCapitalizado);
 
     if (!cliente) {
       Swal.fire({
@@ -928,6 +984,13 @@ const buscarClientePorDNI = async (dni) => {
 
     // Actualiza lista de municipios si cambia la provincia
     filtrarMunicipios();
+
+    // Limpiar estados de validación
+    dniValido.value = true;
+    dniTocado.value = false;
+    emailValido.value = true;
+    movilValido.value = true;
+
     //opcional
     editando.value = true;
     clienteEditandoId.value = cliente.id;
@@ -979,7 +1042,7 @@ const buscarClientePorMovil = async (movil) => {
   try {
     // Refrescar lista desde la API
     await cargarClientes();
-    
+
     // Buscar en la lista local
     const cliente = clientes.value.find((c) => c.movil === movil.trim());
 
@@ -1040,6 +1103,7 @@ const buscarClientePorMovil = async (movil) => {
 
 // Estado de validez del DNI/NIE si la estructura de datos es más compleja se usa reactive
 const dniValido = ref(true); // Por defecto es válido y no muestra error al iniciar
+const dniTocado = ref(false); // Indica si el usuario ha interactuado con el campo
 
 // Función para validar DNI y NIE
 const validarDniNie = (valor) => {
@@ -1118,7 +1182,7 @@ const filtrarMunicipios = () => {
 
   // 3️⃣ filtrar los municipios cuyo id empiece por esos dos dígitos
   municipiosFiltrados.value = municipios.value.filter((m) =>
-    m.id.startsWith(codigoProv)
+    m.id.startsWith(codigoProv),
   );
 
   // 4️⃣ opcional: resetear el municipio si ya no corresponde
@@ -1138,12 +1202,21 @@ const validarDni = () => {
 
 // Función combinada: capitalizar DNI y validar
 const validarDniYCapitalizar = () => {
+  // Solo validar si el campo no está vacío
+  if (!nuevoCliente.value.dni || nuevoCliente.value.dni.trim() === "") {
+    dniTocado.value = false;
+    dniValido.value = true; // No mostrar error en campo vacío
+    return;
+  }
+
   // Capitalizar primero
-  nuevoCliente.value.dni = (nuevoCliente.value.dni || "")
+  nuevoCliente.value.dni = nuevoCliente.value.dni
     .toString()
     .trim()
     .toUpperCase();
-  // Luego validar
+
+  // Marcar como tocado y validar
+  dniTocado.value = true;
   dniValido.value = validarDniNie(nuevoCliente.value.dni);
 };
 
@@ -1198,14 +1271,15 @@ const limpiarCampos = () => {
 
   // Limpiar validaciones visuales
   dniValido.value = true;
+  dniTocado.value = false;
   emailValido.value = true;
   movilValido.value = true;
-  
+
   // Resetear checkbox de aviso legal (solo si no está logueado o es admin)
   if (isAdmin.value || !sessionStorage.getItem("token")) {
     avisoLegal.value = false;
   }
-  
+
   // Limpiar municipios filtrados
   municipiosFiltrados.value = [];
 };
@@ -1224,7 +1298,7 @@ const imprimirListado = () => {
 
   // Crear ventana de impresión
   const ventanaImpresion = window.open("", "_blank");
-  
+
   // Generar HTML para imprimir
   let htmlContent = `
     <!DOCTYPE html>
@@ -1267,7 +1341,7 @@ const imprimirListado = () => {
     </head>
     <body>
       <h1>Listado de Clientes</h1>
-      <p class="fecha-impresion">Fecha de impresión: ${new Date().toLocaleString('es-ES')}</p>
+      <p class="fecha-impresion">Fecha de impresión: ${new Date().toLocaleString("es-ES")}</p>
       <table>
         <thead>
           <tr>
@@ -1290,14 +1364,14 @@ const imprimirListado = () => {
     htmlContent += `
       <tr>
         <td>${index + 1}</td>
-        <td>${cliente.dni || ''}</td>
-        <td>${cliente.nombre || ''}</td>
-        <td>${cliente.apellidos || ''}</td>
-        <td>${cliente.email || ''}</td>
-        <td>${cliente.movil || ''}</td>
-        <td>${cliente.municipio || ''}</td>
-        <td>${cliente.provincia || ''}</td>
-        <td>${cliente.historico ? 'Activo' : 'Inactivo'}</td>
+        <td>${cliente.dni || ""}</td>
+        <td>${cliente.nombre || ""}</td>
+        <td>${cliente.apellidos || ""}</td>
+        <td>${cliente.email || ""}</td>
+        <td>${cliente.movil || ""}</td>
+        <td>${cliente.municipio || ""}</td>
+        <td>${cliente.provincia || ""}</td>
+        <td>${cliente.historico ? "Activo" : "Inactivo"}</td>
       </tr>
     `;
   });
@@ -1312,7 +1386,7 @@ const imprimirListado = () => {
   // Escribir contenido y lanzar impresión
   ventanaImpresion.document.write(htmlContent);
   ventanaImpresion.document.close();
-  
+
   // Esperar a que se cargue el contenido y luego imprimir
   ventanaImpresion.onload = () => {
     ventanaImpresion.print();

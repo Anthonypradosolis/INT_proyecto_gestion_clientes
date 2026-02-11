@@ -169,7 +169,7 @@
                 class="form-check-input"
                 type="radio"
                 id="transmision-manual"
-                value="coche"
+                value="manual"
                 v-model="vehiculo.transmision"
               />
               <label class="form-check-label" for="transmision-manual"
@@ -437,7 +437,12 @@
 <script setup>
 import Swal from "sweetalert2";
 import { ref, computed, onMounted } from "vue";
-import { addArticulo, getArticulos, updateArticulo, deleteArticulo } from "@/api/articulos.js";
+import {
+  addArticulo,
+  getArticulos,
+  updateArticulo,
+  deleteArticulo,
+} from "@/api/articulos.js";
 import provmuniData from "@/data/provmuni.json";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -512,7 +517,7 @@ const filtrarCiudades = () => {
   }
   const codigoProv = prov.id.slice(0, 2);
   municipiosFiltrados.value = municipios.value.filter((m) =>
-    m.id.startsWith(codigoProv)
+    m.id.startsWith(codigoProv),
   );
   vehiculo.value.ubicacion.ciudad = "";
 };
@@ -686,7 +691,9 @@ const guardarVehiculo = async () => {
   if (!editando.value) {
     // Al crear nuevo vehículo, verificar que la matrícula no exista
     const matriculaDuplicada = vehiculos.value.find(
-      (v) => v.matricula && v.matricula.toUpperCase() === vehiculo.value.matricula.toUpperCase()
+      (v) =>
+        v.matricula &&
+        v.matricula.toUpperCase() === vehiculo.value.matricula.toUpperCase(),
     );
     if (matriculaDuplicada) {
       Swal.fire({
@@ -700,10 +707,10 @@ const guardarVehiculo = async () => {
   } else {
     // Al editar, verificar que la matrícula no esté duplicada en otros vehículos
     const matriculaDuplicada = vehiculos.value.find(
-      (v) => 
+      (v) =>
         v._id !== vehiculoEditandoId.value &&
-        v.matricula && 
-        v.matricula.toUpperCase() === vehiculo.value.matricula.toUpperCase()
+        v.matricula &&
+        v.matricula.toUpperCase() === vehiculo.value.matricula.toUpperCase(),
     );
     if (matriculaDuplicada) {
       Swal.fire({
@@ -779,7 +786,34 @@ const onFileChange = (event) => {
 
 // Función para cargar datos de un vehículo en el formulario
 const cargarVehiculo = (item) => {
-  vehiculo.value = { ...item };
+  // Cargar todos los campos del vehículo de forma explícita
+  vehiculo.value = {
+    tipo: item.tipo || "",
+    matricula: item.matricula || "",
+    marca: item.marca || "",
+    modelo: item.modelo || "",
+    anio: item.anio || "",
+    kilometros: item.kilometros || "",
+    precio: item.precio || "",
+    combustible: item.combustible || "",
+    transmision: item.transmision || "",
+    potencia_cv: item.potencia_cv || "",
+    descripcion: item.descripcion || "",
+    ubicacion: {
+      provincia: item.ubicacion?.provincia || item.provincia || "",
+      ciudad: item.ubicacion?.ciudad || item.ciudad || "",
+    },
+    contacto: {
+      nombre: item.contacto?.nombre || item.nombre || "",
+      telefono: item.contacto?.telefono || item.telefono || "",
+      email: item.contacto?.email || item.email || "",
+    },
+    fecha_publicacion: item.fecha_publicacion
+      ? item.fecha_publicacion.split("T")[0]
+      : "",
+    estado: item.estado || "disponible",
+  };
+
   editando.value = true;
   vehiculoEditandoId.value = item._id;
 
@@ -815,7 +849,7 @@ const eliminarVehiculo = async (id) => {
 
   try {
     await deleteArticulo(id);
-    
+
     Swal.fire({
       icon: "success",
       title: "Vehículo eliminado",
@@ -851,9 +885,10 @@ const buscarPorMatricula = async (matricula) => {
 
   try {
     await cargarVehiculos();
-    
+
     const vehiculoEncontrado = vehiculos.value.find(
-      (v) => v.matricula && v.matricula.toUpperCase() === matricula.toUpperCase()
+      (v) =>
+        v.matricula && v.matricula.toUpperCase() === matricula.toUpperCase(),
     );
 
     if (!vehiculoEncontrado) {
@@ -869,7 +904,7 @@ const buscarPorMatricula = async (matricula) => {
 
     // Cargar los datos en el formulario
     cargarVehiculo(vehiculoEncontrado);
-    
+
     Swal.fire({
       icon: "success",
       title: "Vehículo encontrado",
@@ -914,18 +949,18 @@ const limpiarFormulario = () => {
     },
     fecha_publicacion: "",
   });
-  
+
   archivo.value = null;
   editando.value = false;
   vehiculoEditandoId.value = null;
-  
+
   // Limpiar validaciones
   telefonoValido.value = true;
   emailValido.value = true;
-  
+
   // Limpiar municipios filtrados
   municipiosFiltrados.value = [];
-  
+
   // Limpiar input de archivo
   const fileInput = document.getElementById("foto");
   if (fileInput) {

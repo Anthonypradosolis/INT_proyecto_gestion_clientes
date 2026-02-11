@@ -97,6 +97,73 @@ router.post("/", upload.single('imagen'), async (req, res) => {
   }
 });
 
-// otras rutas PUT, DELETE, GET /:id igual
+// Obtener artículo por ID
+router.get("/:id", async (req, res) => {
+  try {
+    const articulo = await Articulo.findById(req.params.id);
+    if (!articulo) {
+      return res.status(404).json({ error: "Artículo no encontrado" });
+    }
+    res.json(articulo);
+  } catch (err) {
+    console.error("Error obteniendo artículo:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Actualizar artículo con imagen
+router.put("/:id", upload.single('imagen'), async (req, res) => {
+  try {
+    let datos;
+
+    // Si viene como FormData con campo 'vehiculo'
+    if (req.body.vehiculo) {
+      try {
+        datos = JSON.parse(req.body.vehiculo);
+      } catch (e) {
+        console.error("Error parseando JSON:", e.message);
+        return res.status(400).json({ error: "JSON inválido en 'vehiculo'", detalle: e.message });
+      }
+    } else {
+      // Si viene como JSON directo
+      datos = req.body;
+    }
+
+    if (req.file) {
+      datos.imagen = `/uploads/${req.file.filename}`;
+    }
+
+    const actualizado = await Articulo.findByIdAndUpdate(
+      req.params.id,
+      datos,
+      { new: true, runValidators: true }
+    );
+
+    if (!actualizado) {
+      return res.status(404).json({ error: "Artículo no encontrado" });
+    }
+
+    res.json(actualizado);
+  } catch (err) {
+    console.error("Error actualizando artículo:", err);
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
+
+// Eliminar artículo
+router.delete("/:id", async (req, res) => {
+  try {
+    const eliminado = await Articulo.findByIdAndDelete(req.params.id);
+
+    if (!eliminado) {
+      return res.status(404).json({ error: "Artículo no encontrado" });
+    }
+
+    res.json({ mensaje: "Artículo eliminado correctamente", articulo: eliminado });
+  } catch (err) {
+    console.error("Error eliminando artículo:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 export default router;
