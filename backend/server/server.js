@@ -14,6 +14,8 @@ import contactoRoutes from "./contactos.js";
 
 import articulosRoutes from "./articulosRoutes.js"; // ruta al router backend
 import facturasRoutes from "./facturasRoutes.js"; // ruta al router de facturas
+import reservasRoutes from "./reservasRoutes.js"; // ruta al router de reservas
+import solicitudesRoutes from "./solicitudesRoutes.js"; // ruta al router de solicitudes de empleo
 import { soloAdmin, verificarToken } from "./authController.js";
 
 // Configurar __dirname primero para poder usarlo con dotenv
@@ -46,6 +48,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/contacto", contactoRoutes);
 app.use("/api/facturas", verificarToken, facturasRoutes);
+app.use("/api/reservas", reservasRoutes);
+app.use("/api/solicitudes", solicitudesRoutes);
 
 
 
@@ -53,36 +57,60 @@ app.use("/api/facturas", verificarToken, facturasRoutes);
 // json-server es un backend ya construido.
 // Express es un backend que TÚ construyes.
 // Por eso json-server no requiere rutas y Express sí.
-app.use("/api/articulos", verificarToken, articulosRoutes);
+app.use("/api/articulos", articulosRoutes);
 
 // ruta crear sesión checkout
 app.post("/create-checkout-session", async (req, res) => {
     try {
-        const { items } = req.body;
+        const { items, amount } = req.body;
 
-        const lineItems = items.map((item) => ({
-            price_data: {
-                currency: 'eur',
-                product_data: {
-                    name: item.nombre,
+        // Calcular el total de los items sin descuento
+        const subtotal = items.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+        
+        // Calcular el factor de descuento si aplica
+        const factorDescuento = amount < subtotal ? amount / subtotal : 1;
+        
+        console.log('💰 Creando sesión de Stripe:');
+        console.log('   Subtotal:', subtotal);
+        console.log('   Monto final recibido:', amount);
+        console.log('   Factor de descuento:', factorDescuento);
+
+        // Crear line items ajustando los precios con el descuento aplicado proporcionalmente
+        const lineItems = items.map((item) => {
+            const precioConDescuento = item.precio * factorDescuento;
+            return {
+                price_data: {
+                    currency: 'eur',
+                    product_data: {
+                        name: item.nombre,
+                    },
+                    unit_amount: Math.round(precioConDescuento * 100), // precio con descuento en céntimos
                 },
-                unit_amount: Math.round(item.precio * 100), // convertir a céntimos
-            },
-            quantity: item.cantidad,
-        }));
+                quantity: item.cantidad,
+            };
+        });
+
+        // Verificar el total calculado
+        const totalCalculado = items.reduce((acc, item) => {
+            return acc + (Math.round(item.precio * factorDescuento * 100) / 100) * item.cantidad;
+        }, 0);
+        
+        console.log('   Total calculado para Stripe:', totalCalculado);
+        console.log('   Line items:', JSON.stringify(lineItems, null, 2));
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
-            success_url: 'http://localhost:5173/success', //crear estos componentes en frontend
-            cancel_url: 'http://localhost:5173/cancel', //crear estos componentes en frontend
+            success_url: 'http://localhost:5173/success',
+            cancel_url: 'http://localhost:5173/cancel',
         });
 
+        console.log('✅ Sesión de Stripe creada exitosamente');
         res.json({ url: session.url });
     } catch (error) {
-        console.error("Error creating checkout session:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("❌ Error creating checkout session:", error);
+        res.status(500).json({ error: "Internal Server Error", details: error.message });
     }
 });
 

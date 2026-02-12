@@ -31,10 +31,14 @@ import "jspdf-autotable";
 import { onMounted, onBeforeUnmount, ref } from "vue";
 import { useCestaStore } from "@/store/cesta.js";
 import { addFactura } from "@/api/facturas.js";
+import { updateEstadoArticulo } from "@/api/articulos.js";
 import logo from "../../public/dibujo.png"; // Logo de la empresa
 
 const cesta = useCestaStore();
 const cartItems = ref([]);
+const subtotalPrice = ref(0);
+const descuentoAplicado = ref(0);
+const cuponAplicado = ref(null);
 const totalPrice = ref(0);
 const numeroFactura = ref(Math.floor(Math.random() * 1000000));
 
@@ -46,9 +50,14 @@ onMounted(async () => {
   if (ultimaCompra) {
     const compraData = JSON.parse(ultimaCompra);
     cartItems.value = compraData.items;
+    subtotalPrice.value = compraData.subtotal || compraData.total;
+    descuentoAplicado.value = compraData.descuento || 0;
+    cuponAplicado.value = compraData.cupon || null;
     totalPrice.value = compraData.total;
 
     console.log("✅ Items recuperados de la compra:", cartItems.value);
+    console.log("✅ Subtotal:", subtotalPrice.value);
+    console.log("✅ Descuento aplicado:", descuentoAplicado.value);
     console.log("✅ Total de la compra:", totalPrice.value);
 
     // Guardar factura en la base de datos
@@ -56,6 +65,7 @@ onMounted(async () => {
   } else if (cesta.items.length > 0) {
     // Fallback: si aún hay items en el store (no se vació)
     cartItems.value = JSON.parse(JSON.stringify(cesta.items));
+    subtotalPrice.value = cesta.totalPrecio;
     totalPrice.value = cesta.totalPrecio;
     console.log("✅ Items obtenidos del store:", cartItems.value);
 
@@ -65,12 +75,30 @@ onMounted(async () => {
     console.warn("⚠️ No se encontraron datos de compra");
   }
 
+  // Actualizar el estado de los vehículos comprados a "vendido"
+  await actualizarEstadoVehiculos();
+
   // Vaciar el carrito ahora que ya tenemos los datos guardados
   cesta.vaciarCesta();
   
   // Limpiar también ultimaCompra del localStorage
   localStorage.removeItem("ultimaCompra");
 });
+
+// Función para actualizar el estado de los vehículos a "vendido"
+const actualizarEstadoVehiculos = async () => {
+  try {
+    // Recorrer todos los items de la compra y actualizar su estado
+    const promesas = cartItems.value.map((item) =>
+      updateEstadoArticulo(item.id, "vendido")
+    );
+
+    await Promise.all(promesas);
+    console.log("✅ Estados de vehículos actualizados a 'vendido'");
+  } catch (error) {
+    console.error("❌ Error al actualizar estados de vehículos:", error);
+  }
+};
 
 // Función para guardar la factura en la base de datos MongoDB
 const guardarFacturaEnBD = async () => {
@@ -90,6 +118,9 @@ const guardarFacturaEnBD = async () => {
         precioUnitario: item.precio,
         total: item.precio * item.cantidad,
       })),
+      subtotal: subtotalPrice.value,
+      descuento: descuentoAplicado.value,
+      cupon: cuponAplicado.value,
       total: totalPrice.value,
       estado: "Completado",
     };
@@ -163,24 +194,42 @@ const generarFacturaPDF = () => {
       styles: { fontSize: 10 },
     });
 
-    // Total de la compra (alineado a la derecha)
-    const total = cartItems.value.reduce(
-      (acc, item) =>
-        acc + (item.precio || item.precio_unitario || 0) * (item.cantidad || 1),
-      0,
-    );
-    const totalText = `Total: ${total.toFixed(2)} €`;
+    // Total de la compra con descuento (alineado a la derecha)
+    const subtotal = subtotalPrice.value;
+    const descuento = descuentoAplicado.value;
+    const total = totalPrice.value;
 
     // Obtener el ancho de la página
     const pageWidth = doc.internal.pageSize.width;
+    let currentY = doc.lastAutoTable.finalY + 10;
 
-    // Calcular el ancho del texto del total para posicionarlo
-    const totalWidth = doc.getTextWidth(totalText);
-    const positionX = pageWidth - totalWidth - 14;
+    // Subtotal
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    const subtotalText = `Subtotal: ${subtotal.toFixed(2)} €`;
+    const subtotalWidth = doc.getTextWidth(subtotalText);
+    const subtotalX = pageWidth - subtotalWidth - 14;
+    doc.text(subtotalText, subtotalX - 9, currentY);
+    currentY += 7;
 
+    // Descuento (si aplica)
+    if (descuento > 0) {
+      doc.setTextColor(0, 128, 0); // Verde
+      const descuentoText = `Descuento (${cuponAplicado.value}): -${descuento.toFixed(2)} €`;
+      const descuentoWidth = doc.getTextWidth(descuentoText);
+      const descuentoX = pageWidth - descuentoWidth - 14;
+      doc.text(descuentoText, descuentoX - 9, currentY);
+      currentY += 7;
+      doc.setTextColor(0, 0, 0); // Volver a negro
+    }
+
+    // Total
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text(totalText, positionX - 9, doc.lastAutoTable.finalY + 10);
+    const totalText = `Total: ${total.toFixed(2)} €`;
+    const totalWidth = doc.getTextWidth(totalText);
+    const positionX = pageWidth - totalWidth - 14;
+    doc.text(totalText, positionX - 9, currentY);
 
     // Descargar el archivo PDF
     doc.save("factura.pdf");

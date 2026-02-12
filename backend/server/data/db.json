@@ -329,14 +329,12 @@
       "movil": "654789465",
       "direccion": "Avda. De Galicia, 101",
       "provincia": "Cuenca",
-      "municipio": "",
+      "municipio": "Alarcón",
       "fechaAlta": "2025-10-02",
       "historico": true,
       "email": "sonia@gmail.com",
       "lopd": true,
-      "tipoCliente": "on",
-      "password": "$2b$10$O/z1b/k7i6CtSTpm5q7WjO9CC4J3IoOjLcK.dOr5hoq2w/vhZOqGK",
-      "passwordConfirm": "12345"
+      "tipoCliente": "on"
     },
     {
       "id": "9afd",

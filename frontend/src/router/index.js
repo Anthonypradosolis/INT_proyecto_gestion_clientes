@@ -17,6 +17,9 @@ import { loginUsuario, esAdmin  } from "../api/authApi";
 import CesTa from "../components/CesTa.vue";
 import TablaSuccess from "../components/TablaSuccess.vue";
 import TablaCanceL from "../components/TablaCanceL.vue";
+import Reservas from "../components/Reservas.vue";
+import SolicitarContratacion from "../components/SolicitarContratacion.vue";
+import Vehiculos from "../components/Vehiculos.vue";
 
 const routes = [
     {
@@ -86,7 +89,23 @@ const routes = [
         path: '/buscar',
         name: 'Buscar',
         component: BusCar,
-    },        
+    },
+    {
+        path: '/reservas',
+        name: 'Reservas',
+        component: Reservas,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/empleo',
+        name: 'SolicitarContratacion',
+        component: SolicitarContratacion
+    },
+    {
+        path: '/vehiculos',
+        name: 'Vehiculos',
+        component: Vehiculos
+    },
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
@@ -116,6 +135,13 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
     const token = sessionStorage.getItem("token");
+
+    // Si la ruta requiere autenticación
+    if (to.meta.requiresAuth) {
+        if (!token) {
+            return next({ name: "TablaLogin" });
+        }
+    }
 
     // Si la ruta requiere ser admin
     if (to.meta.requiresAdmin) {

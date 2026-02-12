@@ -40,6 +40,16 @@
           <li class="nav-item">
             <router-link class="nav-link" to="/ventas">Ventas</router-link>
           </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/vehiculos">
+              <i class="bi bi-car-front-fill me-1"></i>Vehículos
+            </router-link>
+          </li>
+          <li class="nav-item" v-if="isLoggedIn">
+            <router-link class="nav-link" to="/reservas">
+              <i class="bi bi-calendar-check me-1"></i>Reservas
+            </router-link>
+          </li>
           <!--          <li class="nav-item">
             <router-link class="nav-link" to="/pedidos">Pedidos</router-link>
           </li>
@@ -53,6 +63,11 @@
           </li>  
           <li class="nav-item">
             <router-link class="nav-link" to="/contacto">Contacto</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/empleo">
+              <i class="bi bi-briefcase me-1"></i>Empleo
+            </router-link>
           </li>
         </ul>
 
@@ -129,7 +144,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { esAdmin } from '@/api/authApi.js';
 import { useCestaStore } from "../store/cesta.js";
@@ -141,6 +156,9 @@ const isLogueado = ref(false);
 const isAdmin = ref(false);
 const isUsuario = ref(false);
 const userName = ref("");
+
+// Computed property para compatibilidad
+const isLoggedIn = computed(() => isLogueado.value);
 
 const router = useRouter();
 const query = ref(""); // IMPORTANTE: esto evita el warning
@@ -161,6 +179,10 @@ function logout() {
   sessionStorage.removeItem("isAdmin");
   sessionStorage.removeItem("isUsuario");
   sessionStorage.removeItem("token");
+  sessionStorage.removeItem("rol");
+  sessionStorage.removeItem("email");
+  sessionStorage.removeItem("nombre");
+  sessionStorage.removeItem("isUser");
   // Actualiza estado
   isLogueado.value = false;
   userName.value = "";

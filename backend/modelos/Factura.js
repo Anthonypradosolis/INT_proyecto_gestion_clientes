@@ -25,6 +25,19 @@ const FacturaSchema = new mongoose.Schema(
                 total: { type: Number, required: true }
             }
         ],
+        subtotal: {
+            type: Number,
+            required: false
+        },
+        descuento: {
+            type: Number,
+            required: false,
+            default: 0
+        },
+        cupon: {
+            type: String,
+            required: false
+        },
         total: {
             type: Number,
             required: true

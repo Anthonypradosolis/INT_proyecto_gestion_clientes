@@ -95,32 +95,31 @@ export default {
 
         const data = await loginUsuario(this.dni, this.pass);
 
+        console.log('📥 Respuesta del login:', data);
+
         // Guardar token y datos del usuario en sessionStorage
         sessionStorage.setItem("token", data.token);
         sessionStorage.setItem("userName", data.nombre);
+        sessionStorage.setItem("nombre", data.nombre);
+        sessionStorage.setItem("email", data.email || this.dni);
         sessionStorage.setItem("isLogueado", "true");
 
         const decoded = jwtDecode(data.token);
+        console.log('🔓 Token decodificado:', decoded);
 
-        if (decoded.tipo === "admin") {
-          sessionStorage.setItem("isAdmin", "true");
-          sessionStorage.setItem("userName", decoded.nombre);
-          sessionStorage.setItem("isUser", "false");
-        } else {
-          sessionStorage.setItem("isAdmin", "false");
-          sessionStorage.setItem("userName", decoded.nombre);
-          sessionStorage.setItem("isUser", "true");
-        }
+        // Guardar rol basado en el tipo de usuario
+        const esAdmin = data.tipo === "admin" || decoded.tipo === "admin";
+        sessionStorage.setItem("isAdmin", esAdmin ? "true" : "false");
+        sessionStorage.setItem("isUsuario", !esAdmin ? "true" : "false");
+        sessionStorage.setItem("isUser", !esAdmin ? "true" : "false");
+        sessionStorage.setItem("rol", esAdmin ? "admin" : "usuario");
 
-        if (data.tipo === "admin") {
-          sessionStorage.setItem("isAdmin", "true");
-          // Asegurar que la bandera de usuario normal queda desactivada
-          sessionStorage.setItem("isUsuario", "false");
-        } else {
-          sessionStorage.setItem("isUsuario", "true");
-          // Asegurar que la bandera admin queda desactivada
-          sessionStorage.setItem("isAdmin", "false");
-        }
+        console.log('✅ Datos guardados en sessionStorage:');
+        console.log('   - token:', !!sessionStorage.getItem("token"));
+        console.log('   - nombre:', sessionStorage.getItem("nombre"));
+        console.log('   - email:', sessionStorage.getItem("email"));
+        console.log('   - rol:', sessionStorage.getItem("rol"));
+        console.log('   - isAdmin:', sessionStorage.getItem("isAdmin"));
 
         Swal.fire({
           title: "Bienvenido",

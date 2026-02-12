@@ -14,15 +14,11 @@ const getAuthHeaders = () => {
 };
 
 export const getArticulos = () => {
-  return axios.get(API_URL, {
-    headers: getAuthHeaders()
-  }).then(res => res.data);
+  return axios.get(API_URL).then(res => res.data);
 }
 
 export const getArticulosById = (id) => {
-  return axios.get(`${API_URL}/${id}`, {
-    headers: getAuthHeaders()
-  }).then(res => res.data);
+  return axios.get(`${API_URL}/${id}`).then(res => res.data);
 }
 
 export const addArticulo = (formData) => {
@@ -44,6 +40,15 @@ export const updateArticulo = (id, articuloActualizado) => {
   return axios.put(`${API_URL}/${id}`, articuloActualizado, {
     headers: {
       'Content-Type': 'multipart/form-data',
+      ...getAuthHeaders()
+    }
+  }).then(res => res.data);
+}
+
+export const updateEstadoArticulo = (id, estado) => {
+  return axios.put(`${API_URL}/${id}`, { estado }, {
+    headers: {
+      'Content-Type': 'application/json',
       ...getAuthHeaders()
     }
   }).then(res => res.data);

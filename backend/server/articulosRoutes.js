@@ -5,6 +5,7 @@ import path from "path";
 import Articulo from "../modelos/Articulo.js";
 import { fileURLToPath } from "url";
 import fs from 'fs';
+import { verificarToken } from "./authController.js";
 
 // inicializar configuración de multer para manejo de archivos
 const __filename = fileURLToPath(import.meta.url);
@@ -67,8 +68,8 @@ router.get("/", async (req, res) => {
   res.json(articulos);
 });
 
-// Guardar artículo con imagen
-router.post("/", upload.single('imagen'), async (req, res) => {
+// Guardar artículo con imagen (requiere autenticación)
+router.post("/", verificarToken, upload.single('imagen'), async (req, res) => {
   try {
     if (!req.body.vehiculo) {
       console.error("No se recibió el campo 'vehiculo'");
@@ -111,8 +112,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Actualizar artículo con imagen
-router.put("/:id", upload.single('imagen'), async (req, res) => {
+// Actualizar artículo con imagen o solo datos (requiere autenticación)
+router.put("/:id", verificarToken, upload.single('imagen'), async (req, res) => {
   try {
     let datos;
 
@@ -125,10 +126,11 @@ router.put("/:id", upload.single('imagen'), async (req, res) => {
         return res.status(400).json({ error: "JSON inválido en 'vehiculo'", detalle: e.message });
       }
     } else {
-      // Si viene como JSON directo
+      // Si viene como JSON directo (por ejemplo, solo actualizar estado)
       datos = req.body;
     }
 
+    // Solo agregar imagen si se subió un archivo
     if (req.file) {
       datos.imagen = `/uploads/${req.file.filename}`;
     }
@@ -150,8 +152,8 @@ router.put("/:id", upload.single('imagen'), async (req, res) => {
   }
 });
 
-// Eliminar artículo
-router.delete("/:id", async (req, res) => {
+// Eliminar artículo (requiere autenticación)
+router.delete("/:id", verificarToken, async (req, res) => {
   try {
     const eliminado = await Articulo.findByIdAndDelete(req.params.id);
 

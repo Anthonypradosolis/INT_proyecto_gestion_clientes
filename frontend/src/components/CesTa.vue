@@ -63,20 +63,60 @@
           </tr>
         </tbody>
         <tfoot>
+          <tr>
+            <td colspan="3" class="text-end">Subtotal:</td>
+            <td colspan="2">{{ cesta.totalPrecio.toFixed(2) }}€</td>
+          </tr>
+          <tr v-if="cuponAplicado">
+            <td colspan="3" class="text-end text-success">Descuento aplicado ({{ cuponValido }}):</td>
+            <td colspan="2" class="text-success">-{{ descuentoAplicado.toFixed(2) }}€</td>
+          </tr>
           <tr class="fw-bold">
-            <td colspan="3" class="text-end">Total:</td>
-            <td>{{ cesta.totalPrecio.toFixed(2) }}€</td>
-            <td>
-              <button
-                class="btn btn-success btn-sm justify-content-end mx-3"
-                @click="iniciarPago"
-              >
-                Pago
-              </button>
-            </td>
+            <td colspan="3" class="text-end">Total a pagar:</td>
+            <td colspan="2">{{ totalConDescuento.toFixed(2) }}€</td>
           </tr>
         </tfoot>
       </table>
+
+      <!-- Sección de cupón de descuento -->
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title">¿Tienes un cupón de descuento?</h5>
+          <div class="row g-2">
+            <div class="col-auto flex-grow-1">
+              <input
+                type="text"
+                class="form-control"
+                v-model="cuponIngresado"
+                placeholder="Ingresa tu cupón"
+                :disabled="cuponAplicado"
+              />
+            </div>
+            <div class="col-auto">
+              <button
+                class="btn btn-primary"
+                @click="aplicarCupon"
+                :disabled="cuponAplicado || !cuponIngresado"
+              >
+                {{ cuponAplicado ? 'Cupón aplicado' : 'Aplicar' }}
+              </button>
+            </div>
+          </div>
+          <div v-if="mensajeCupon" class="mt-2" :class="cuponAplicado ? 'text-success' : 'text-danger'">
+            {{ mensajeCupon }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón de pago -->
+      <div class="text-end mt-3">
+        <button
+          class="btn btn-success btn-lg"
+          @click="iniciarPago"
+        >
+          <i class="bi bi-credit-card me-2"></i>Proceder al pago
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -91,14 +131,52 @@ import { ref, computed } from "vue";
 const cesta = useCestaStore();
 const router = useRouter();
 
+// Estado para el cupón de descuento
+const cuponIngresado = ref("");
+const cuponAplicado = ref(false);
+const cuponValido = ref("");
+const mensajeCupon = ref("");
+
+// Cupones válidos y sus descuentos
+const cuponesValidos = {
+  "DESCUENTO10": 0.10, // 10% de descuento
+};
+
 // Computed para verificar si el usuario está autenticado
 const estaAutenticado = computed(() => {
   return sessionStorage.getItem("token") !== null;
 });
 
+// Computed para calcular el descuento aplicado
+const descuentoAplicado = computed(() => {
+  if (cuponAplicado.value && cuponesValidos[cuponValido.value]) {
+    return cesta.totalPrecio * cuponesValidos[cuponValido.value];
+  }
+  return 0;
+});
+
+// Computed para calcular el total con descuento
+const totalConDescuento = computed(() => {
+  return cesta.totalPrecio - descuentoAplicado.value;
+});
+
 const incrementar = (id) => cesta.incrementar(id);
 const decrementar = (id) => cesta.decrementar(id);
 const removeProducto = (id) => cesta.removeProducto(id);
+
+// Función para aplicar el cupón
+const aplicarCupon = () => {
+  const cuponMayusculas = cuponIngresado.value.trim().toUpperCase();
+  
+  if (cuponesValidos[cuponMayusculas]) {
+    cuponAplicado.value = true;
+    cuponValido.value = cuponMayusculas;
+    const porcentaje = cuponesValidos[cuponMayusculas] * 100;
+    mensajeCupon.value = `¡Cupón aplicado! Has obtenido un ${porcentaje}% de descuento.`;
+  } else {
+    mensajeCupon.value = "Cupón inválido. Por favor, verifica el código.";
+  }
+};
 
 const mostrarAlerta = (title, text, icon) => {
   Swal.fire({ title, text, icon });
@@ -131,12 +209,24 @@ const iniciarPago = async () => {
   }
 
   try {
+    // Calcular el total final con descuento
+    const montoFinal = totalConDescuento.value;
+    
+    console.log('💰 Información de pago:');
+    console.log('   Subtotal:', cesta.totalPrecio);
+    console.log('   Cupón aplicado:', cuponAplicado.value);
+    console.log('   Descuento:', descuentoAplicado.value);
+    console.log('   Total final:', montoFinal);
+
     // GUARDAR los datos del carrito en localStorage ANTES de ir a Stripe
     localStorage.setItem(
       "ultimaCompra",
       JSON.stringify({
         items: cesta.items,
-        total: cesta.totalPrecio,
+        subtotal: cesta.totalPrecio,
+        descuento: descuentoAplicado.value,
+        cupon: cuponAplicado.value ? cuponValido.value : null,
+        total: montoFinal,
         fecha: new Date().toISOString(),
       }),
     );
@@ -146,7 +236,7 @@ const iniciarPago = async () => {
       "http://localhost:5000/create-checkout-session",
       {
         items: cesta.items,
-        amount: cesta.totalPrecio,
+        amount: montoFinal,
       },
     );
 
@@ -158,6 +248,8 @@ const iniciarPago = async () => {
       return;
     }
 
+    console.log('✅ Sesión de Stripe creada con monto:', montoFinal);
+    
     // Redirigir directamente al checkout de Stripe
     window.location.href = session.url;
   } catch (error) {

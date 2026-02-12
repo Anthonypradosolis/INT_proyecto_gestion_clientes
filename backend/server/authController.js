@@ -19,13 +19,20 @@ export const login = async (req, res) => {
         const token = jwt.sign(
             {
                 dni: user.dni,
-                tipo: user.tipo || 'user'
+                tipo: user.tipo || 'user',
+                nombre: user.nombre,
+                email: user.email || user.dni
             },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
 
-        res.json({ token, nombre: user.nombre, tipo: user.tipo || 'user' });
+        res.json({ 
+            token, 
+            nombre: user.nombre, 
+            email: user.email || user.dni,
+            tipo: user.tipo || 'user' 
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error interno en el servidor' });
@@ -40,15 +47,24 @@ export const login = async (req, res) => {
 
 export const verificarToken = (req, res, next) => {
     const authHeader = req.headers.authorization; // Authorization: Bearer <token>
-    if (!authHeader) return res.status(401).json({ mensaje: "Token no recibido" });
+    
+    console.log('🔍 Verificando token...');
+    console.log('   Headers recibidos:', req.headers.authorization ? 'Authorization presente' : 'Authorization NO presente');
+    
+    if (!authHeader) {
+        console.log('   ❌ Token no recibido en headers');
+        return res.status(401).json({ mensaje: "Token no recibido" });
+    }
 
     const token = authHeader.split(" ")[1]; // separar "Bearer" del token
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('   ✅ Token válido para usuario:', decoded.dni, 'tipo:', decoded.tipo);
         req.user = decoded; // guardar info del usuario en req
         next(); // continuar al controlador
     } catch (err) {
+        console.log('   ❌ Token inválido:', err.message);
         return res.status(403).json({ mensaje: "Token inválido" });
     }
 };

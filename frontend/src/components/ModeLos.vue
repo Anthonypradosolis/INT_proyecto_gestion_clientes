@@ -363,12 +363,103 @@
         <button
           class="btn btn-success rounded border shadow-none px-4"
           type="button"
-          @click="imprimirTabla"
+          @click="abrirModalImpresion"
         >
           <i class="bi bi-printer me-2"></i>Imprimir
         </button>
       </div>
     </form>
+
+    <!-- MODAL DE FILTROS DE IMPRESIÓN -->
+    <div
+      class="modal fade"
+      id="modalImpresion"
+      tabindex="-1"
+      aria-labelledby="modalImpresionLabel"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="modalImpresionLabel">
+              <i class="bi bi-printer me-2"></i>Opciones de Impresión
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Select de Marca -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Filtrar por Marca:</label>
+              <select
+                class="form-select"
+                v-model="filtroImpresion.marcaSeleccionada"
+              >
+                <option value="">Todas las marcas</option>
+                <option
+                  v-for="marca in marcasUnicas"
+                  :key="marca"
+                  :value="marca"
+                >
+                  {{ marca }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Select de Estado -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Filtrar por Estado:</label>
+              <select
+                class="form-select"
+                v-model="filtroImpresion.estadoSeleccionado"
+              >
+                <option value="">Todos los estados</option>
+                <option value="disponible">Disponible</option>
+                <option value="reservado">Reservado</option>
+                <option value="vendido">Vendido</option>
+              </select>
+            </div>
+
+            <!-- Ordenar por -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Ordenar por:</label>
+              <select
+                class="form-select"
+                v-model="filtroImpresion.ordenamiento"
+              >
+                <option value="marca-az">Marca (A-Z)</option>
+                <option value="marca-za">Marca (Z-A)</option>
+                <option value="precio-menor">Menor Precio</option>
+                <option value="precio-mayor">Mayor Precio</option>
+                <option value="fecha-reciente">Más Reciente</option>
+                <option value="fecha-antigua">Más Antiguo</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              @click="generarPDFConFiltro"
+            >
+              <i class="bi bi-printer me-2"></i>Imprimir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- TABLA DE VEHÍCULOS -->
     <div class="mt-5" v-if="vehiculos.length > 0">
@@ -477,6 +568,15 @@ const editando = ref(false);
 const vehiculoEditandoId = ref(null);
 const vehiculos = ref([]);
 
+// Estados para el modal de impresión
+const filtroImpresion = ref({
+  marcaSeleccionada: '',
+  estadoSeleccionado: '',
+  ordenamiento: 'marca-az'
+});
+
+let modalImpresionInstance = null;
+
 // Generar array de años desde 1990 hasta el año actual + 1
 const aniosDisponibles = computed(() => {
   const anioActual = new Date().getFullYear();
@@ -487,9 +587,22 @@ const aniosDisponibles = computed(() => {
   return anios;
 });
 
+// Obtener marcas únicas para el filtro
+const marcasUnicas = computed(() => {
+  const marcas = vehiculos.value.map(v => v.marca);
+  return [...new Set(marcas)].sort();
+});
+
 // Cargar vehículos al montar el componente
 onMounted(async () => {
   await cargarVehiculos();
+  
+  // Inicializar modal de Bootstrap
+  const modalElement = document.getElementById('modalImpresion');
+  if (modalElement) {
+    const { Modal } = await import('bootstrap');
+    modalImpresionInstance = new Modal(modalElement);
+  }
 });
 
 // Función para cargar todos los vehículos
@@ -968,8 +1081,8 @@ const limpiarFormulario = () => {
   }
 };
 
-// Función para imprimir la tabla en PDF
-const imprimirTabla = () => {
+// Función para abrir el modal de impresión
+const abrirModalImpresion = () => {
   if (vehiculos.value.length === 0) {
     Swal.fire({
       icon: "warning",
@@ -980,14 +1093,94 @@ const imprimirTabla = () => {
     return;
   }
 
+  // Resetear filtros
+  filtroImpresion.value = {
+    marcaSeleccionada: '',
+    estadoSeleccionado: '',
+    ordenamiento: 'marca-az'
+  };
+
+  // Abrir modal
+  if (modalImpresionInstance) {
+    modalImpresionInstance.show();
+  }
+};
+
+// Función para ordenar vehículos
+const ordenarVehiculos = (vehiculos) => {
+  const orden = filtroImpresion.value.ordenamiento;
+  const vehiculosOrdenados = [...vehiculos];
+
+  switch (orden) {
+    case 'marca-az':
+      return vehiculosOrdenados.sort((a, b) => a.marca.localeCompare(b.marca));
+    case 'marca-za':
+      return vehiculosOrdenados.sort((a, b) => b.marca.localeCompare(a.marca));
+    case 'precio-menor':
+      return vehiculosOrdenados.sort((a, b) => parseFloat(a.precio) - parseFloat(b.precio));
+    case 'precio-mayor':
+      return vehiculosOrdenados.sort((a, b) => parseFloat(b.precio) - parseFloat(a.precio));
+    case 'fecha-reciente':
+      return vehiculosOrdenados.sort((a, b) => new Date(b.fecha_publicacion) - new Date(a.fecha_publicacion));
+    case 'fecha-antigua':
+      return vehiculosOrdenados.sort((a, b) => new Date(a.fecha_publicacion) - new Date(b.fecha_publicacion));
+    default:
+      return vehiculosOrdenados;
+  }
+};
+
+// Función para generar PDF con filtro aplicado
+const generarPDFConFiltro = () => {
+  // Filtrar vehículos según las opciones seleccionadas
+  let vehiculosFiltrados = [...vehiculos.value];
+  let tituloPartes = [];
+
+  // Aplicar filtro de marca si está seleccionada
+  if (filtroImpresion.value.marcaSeleccionada) {
+    vehiculosFiltrados = vehiculosFiltrados.filter(
+      v => v.marca === filtroImpresion.value.marcaSeleccionada
+    );
+    tituloPartes.push(`Marca: ${filtroImpresion.value.marcaSeleccionada}`);
+  }
+
+  // Aplicar filtro de estado si está seleccionado
+  if (filtroImpresion.value.estadoSeleccionado) {
+    vehiculosFiltrados = vehiculosFiltrados.filter(
+      v => v.estado === filtroImpresion.value.estadoSeleccionado
+    );
+    const estadoTexto = filtroImpresion.value.estadoSeleccionado.charAt(0).toUpperCase() + 
+                        filtroImpresion.value.estadoSeleccionado.slice(1);
+    tituloPartes.push(`Estado: ${estadoTexto}`);
+  }
+
+  // Construir título
+  const tituloFiltro = tituloPartes.length > 0 
+    ? `Listado de Vehículos - ${tituloPartes.join(' | ')}`
+    : "Listado de Vehículos";
+
+  // Ordenar vehículos
+  vehiculosFiltrados = ordenarVehiculos(vehiculosFiltrados);
+
+  // Verificar si hay datos después del filtro
+  if (vehiculosFiltrados.length === 0) {
+    Swal.fire({
+      icon: "info",
+      title: "Sin resultados",
+      text: "No hay vehículos que cumplan con el filtro seleccionado.",
+      showConfirmButton: true,
+    });
+    return;
+  }
+
+  // Generar PDF
   const doc = new jsPDF();
 
   // Título
   doc.setFontSize(16);
-  doc.text("Listado de Vehículos", 105, 15, { align: "center" });
+  doc.text(tituloFiltro, 105, 15, { align: "center" });
 
   // Preparar datos para la tabla
-  const tableData = vehiculos.value.map((v) => [
+  const tableData = vehiculosFiltrados.map((v) => [
     v.matricula || "N/A",
     v.marca,
     v.modelo,
@@ -1010,12 +1203,26 @@ const imprimirTabla = () => {
   });
 
   // Guardar PDF
-  doc.save("listado-vehiculos.pdf");
+  let nombreArchivo = "listado-vehiculos";
+  if (filtroImpresion.value.marcaSeleccionada) {
+    nombreArchivo += `-${filtroImpresion.value.marcaSeleccionada.toLowerCase()}`;
+  }
+  if (filtroImpresion.value.estadoSeleccionado) {
+    nombreArchivo += `-${filtroImpresion.value.estadoSeleccionado}`;
+  }
+  nombreArchivo += ".pdf";
+  
+  doc.save(nombreArchivo);
+
+  // Cerrar modal
+  if (modalImpresionInstance) {
+    modalImpresionInstance.hide();
+  }
 
   Swal.fire({
     icon: "success",
     title: "PDF generado",
-    text: "La tabla se ha exportado correctamente.",
+    text: `Se han impreso ${vehiculosFiltrados.length} vehículo(s).`,
     timer: 2000,
     showConfirmButton: false,
   });
