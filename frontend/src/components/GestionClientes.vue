@@ -825,6 +825,38 @@ const activarCliente = async (cliente) => {
   }
 };
 
+// Función para abrir el modal de impresión
+const abrirModalImpresion = () => {
+  if (clientes.value.length === 0) {
+    Swal.fire({
+      icon: "warning",
+      title: "Sin datos",
+      text: "No hay clientes para imprimir.",
+      showConfirmButton: true,
+    });
+    return;
+  }
+
+  // Estados para el modal de impresión
+const filtroImpresion = ref({
+  particularSeleccionado: '',
+  empresa: '',
+});
+
+
+  // Resetear filtros
+  filtroImpresion.value = {
+    marcaSeleccionada: '',
+    estadoSeleccionado: '',
+    ordenamiento: 'marca-az'
+  };
+
+  // Abrir modal
+  if (modalImpresionInstance) {
+    modalImpresionInstance.show();
+  }
+};
+
 const agregarCliente = () => {
   clientes.value.push({ ...nuevoCliente.value });
   // Reiniciar el formulario

@@ -529,22 +529,25 @@
   ],
   "noticias": [
     {
-      "id": "9b74",
-      "titulo": "Los coches chinos conquistan Europa ",
-      "contenido": "Los coches chinos a la conquista europea. En 2025, marcas como BYD, MG y NIO ya controlan más del 10 % del mercado europeo. Su éxito se debe a precios competitivos, tecnología avanzada y una oferta eléctrica que atrae a consumidores y gobiernos. Mientras fabricantes tradicionales como Volkswagen y Renault intentan adaptarse, China gana terreno gracias a una producción eficiente y una estrategia de expansión agresiva en toda la Unión Europea.",
-      "fecha": "23/10/2025"
+      "id": "2d68",
+      "titulo": "dasdsa",
+      "contenido": "dsad",
+      "totalpuntos": 0,
+      "fecha": "13/2/2026"
     },
     {
-      "id": "4af8",
-      "titulo": "Toyota presenta un nuevo motor",
-      "contenido": "Toyota presenta su nuevo eléctrico bZ4X, un SUV compacto con autonomía de hasta 450 km y tecnología avanzada de asistencia al conductor. Este modelo marca el inicio de la nueva familia bZ (beyond Zero) de Toyota, enfocada en cero emisiones. El bZ4X cuenta con tracción total opcional, carga rápida y un diseño futurista que combina eficiencia y confort. Llegará a concesionarios en 2025, posicionándose como una opción competitiva en el mercado EV global.",
-      "fecha": "23/10/2025"
+      "id": "c7af",
+      "titulo": "Trabajo Mayor",
+      "contenido": "Dedicación en la materia de Vue",
+      "totalpuntos": 0,
+      "fecha": "13/2/2026"
     },
     {
-      "id": "2f48",
-      "titulo": "La UE dando palos de ciego en el mundo del motor",
-      "contenido": "A pesar del firme respaldo de países como España y Francia a la meta de 2035 para prohibir la venta de coches nuevos con motores de combustión interna en la Unión Europea, Alemania ha impulsado una revisión de esta normativa ante la presión de los fabricantes de automóviles. Esta directiva forma parte del Pact Verde Europeo y pretende acelerar el fin de los combustibles fósiles en el transporte.",
-      "fecha": "24/10/2025"
+      "id": "10f7",
+      "titulo": "Diablo",
+      "contenido": "sadasdsad",
+      "totalpuntos": 0,
+      "fecha": "13/2/2026"
     }
   ],
   "pedidos": [
@@ -703,6 +706,15 @@
       "fechaAlta": "2025-12-18",
       "servicioTaller": "revision",
       "estadoCita": "Pendiente",
+      "acepta": true
+    },
+    {
+      "id": "2",
+      "matricula": "7898FDC",
+      "movilCliente": "sonia@gmail.com",
+      "fechaAlta": "2026-02-04",
+      "servicioTaller": "neumaticos",
+      "estadoCita": "Finalizado",
       "acepta": true
     }
   ]

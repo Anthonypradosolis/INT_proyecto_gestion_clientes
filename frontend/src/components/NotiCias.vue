@@ -80,6 +80,7 @@
                     ? noticia.contenido.slice(0, 200) + "..."
                     : noticia.contenido
                 }}</span>
+
                 <a
                   href="#"
                   @click.prevent="toggleExpand(noticia.id)"
@@ -89,6 +90,16 @@
                     isExpanded[noticia.id] ? "Mostrar menos" : "Seguir leyendo"
                   }}
                 </a>
+                <td>
+                  <button 
+                  type="button"
+                  class="bi bi-hand-thumbs-up bg-warning"
+                  @click="votarNoticia(noticia.id)"
+                  ></button>
+                  <label>
+                  {{noticia.totalpuntos || 0}}
+                  </label>
+                </td>
               </div>
             </td>
             <td class="align-middle">
@@ -130,7 +141,7 @@ const noticias = ref([]);
 const isAdmin = ref(false);
 
 // Formulario
-const nuevo = reactive({ titulo: "", contenido: "" });
+const nuevo = reactive({ titulo: "", contenido: "" , totalpuntos:0 });
 const editingId = ref(null);
 
 // Control de expansión por id
@@ -165,11 +176,12 @@ const toggleExpand = (id) => {
 };
 
 const agregarNoticia = async () => {
-  if (!nuevo.titulo.trim() || !nuevo.contenido.trim()) return;
+  if (!nuevo.titulo.trim() || !nuevo.contenido.trim()  ) return;
 
   const payload = {
     titulo: nuevo.titulo.trim(),
     contenido: nuevo.contenido.trim(),
+    totalpuntos: nuevo.totalpuntos,
     fecha: new Date().toLocaleDateString(),
   };
 
@@ -187,6 +199,7 @@ const agregarNoticia = async () => {
     // reset
     nuevo.titulo = "";
     nuevo.contenido = "";
+    nuevo.totalpuntos= "";
   } catch (e) {
     console.error("error guardando noticia", e);
   }
@@ -206,6 +219,13 @@ const eliminarNoticia = async (id) => {
   } catch (e) {
     console.error("error eliminando noticia", e);
   }
+};
+
+const votarNoticia = (id) => {
+  const n = noticias.value.find((n) => n.id === id);
+  if (!n) return;
+  n.totalpuntos = n.totalpuntos +1;
+  agregarNoticia();
 };
 
 const editarNoticia = (id) => {

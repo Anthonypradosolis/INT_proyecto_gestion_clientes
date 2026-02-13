@@ -40,6 +40,9 @@
           <li class="nav-item">
             <router-link class="nav-link" to="/ventas">Ventas</router-link>
           </li>
+            <li class="nav-item" v-if="isAdmin">
+            <router-link class="nav-link" to="/facturas">Facturas</router-link>
+          </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/vehiculos">
               <i class="bi bi-car-front-fill me-1"></i>Vehículos

@@ -70,7 +70,7 @@
             required
           />
         </div>
-
+        <!-- Servicio Taller-->
         <div class="col-md-4">
           <label for="servicio" class="form-label">Servicio Taller</label>
           <select
@@ -89,7 +89,7 @@
             </option>
           </select>
         </div>
-
+        <!-- Estado cita -->
         <div class="col-md-4 d-flex">
           <label class="form-label">Estado Cita: </label>
           <div class="ms-3">
@@ -116,7 +116,7 @@
           </div>
         </div>
       </div>
-
+      <!--Aceptar presupuesto-->
       <div class="form-check d-flex align-items-center mt-2 me-2">
         <label for="acepta"
           >Acepta Presupuesto
@@ -129,15 +129,18 @@
         /></label>
       </div>
       <!-- Botón de acción: Añadir o Modificar -->
-      <button type="submit" class="btn btn-primary mt-3">
+      <button type="submit" class="btn btn-primary mt-3 me-2" >
         {{ editando ? "Modificar" : "Añadir" }}
       </button>
+      
+      <label for="estadoCitas" class="btn btn-warning">Pendientes</label>
     </form>
 
     <!-- Tabla que muestra la lista de Modelos cargados -->
     <table
       class="table table-bordered table-striped table-hover table-sm align-middle table-responsive"
-    >
+
+      >
       <thead class="thead-dark table-primary text-center">
         <tr>
           <th>ID</th>
@@ -231,6 +234,20 @@ const nuevoModelo = ref({
   estadoCita: "Pendiente",
   acepta: false,
 });
+
+const filtros = ref({
+  estadoCita: "",
+})
+
+
+const citasFiltrados = computed(()=>{
+  let resultado = [...nuevaCita.value];
+
+  if(filtros.value.estadoCita){
+    resultado = resultado.filter(v=> v.estadoCita === filtros.value.estadoCita);
+  }
+  return resultado;
+})
 
 // --- PAGINACIÓN ---
 const currentPage = ref(1);

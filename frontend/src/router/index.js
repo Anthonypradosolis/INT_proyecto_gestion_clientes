@@ -20,6 +20,7 @@ import TablaCanceL from "../components/TablaCanceL.vue";
 import Reservas from "../components/Reservas.vue";
 import SolicitarContratacion from "../components/SolicitarContratacion.vue";
 import Vehiculos from "../components/Vehiculos.vue";
+import FacTuras from "../components/FacTuras.vue";
 
 const routes = [
     {
@@ -84,6 +85,11 @@ const routes = [
         path: '/ventas',
         name: 'VenTas',
         component: VenTas,
+    },
+    {
+        path: '/facturas',
+        name: 'FacTuras',
+        component: FacTuras
     },
     {
         path: '/buscar',

@@ -482,10 +482,18 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in vehiculos" :key="index">
-              <td class="text-center">{{ item.matricula || "N/A" }}</td>
-              <td>{{ item.marca }}</td>
-              <td>{{ item.modelo }}</td>
-              <td class="text-center">
+              <td class="text-center" "  :class="{
+                    'bg-warning text-dark': item.estado === 'reservado',
+                  }">{{ item.matricula || "N/A" }}</td>
+              <td "  :class="{
+                    'bg-warning text-dark': item.estado === 'reservado',
+                  }">{{ item.marca }} </td>
+              <td "  :class="{
+                    'bg-warning text-dark': item.estado === 'reservado',
+                  }">{{ item.modelo }}</td>
+              <td class="text-center"  :class="{
+                    'bg-warning text-dark': item.estado === 'reservado',
+                  }"  >
                 <span
                   class="badge"
                   :class="{
@@ -497,7 +505,9 @@
                   {{ item.estado }}
                 </span>
               </td>
-              <td>
+              <td "  :class="{
+                    'bg-warning text-dark': item.estado === 'reservado',
+                  }">
                 {{ item.contacto.nombre }}<br />
                 <small class="text-muted">{{ item.contacto.telefono }}</small>
               </td>

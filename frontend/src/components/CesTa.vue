@@ -67,13 +67,17 @@
             <td colspan="3" class="text-end">Subtotal:</td>
             <td colspan="2">{{ cesta.totalPrecio.toFixed(2) }}€</td>
           </tr>
+             <tr>
+            <td colspan="3" class="text-end">Iva 21%:</td>
+            <td colspan="2">{{ (cesta.totalPrecio.toFixed(2)/100*iva) }}€</td>
+          </tr>
           <tr v-if="cuponAplicado">
             <td colspan="3" class="text-end text-success">Descuento aplicado ({{ cuponValido }}):</td>
             <td colspan="2" class="text-success">-{{ descuentoAplicado.toFixed(2) }}€</td>
           </tr>
           <tr class="fw-bold">
             <td colspan="3" class="text-end">Total a pagar:</td>
-            <td colspan="2">{{ totalConDescuento.toFixed(2) }}€</td>
+            <td colspan="2">{{(cesta.totalPrecio.toFixed(2)/100*iva)+cesta.totalPrecio }}€</td>
           </tr>
         </tfoot>
       </table>
@@ -136,7 +140,7 @@ const cuponIngresado = ref("");
 const cuponAplicado = ref(false);
 const cuponValido = ref("");
 const mensajeCupon = ref("");
-
+const iva = ref(21);
 // Cupones válidos y sus descuentos
 const cuponesValidos = {
   "DESCUENTO10": 0.10, // 10% de descuento
